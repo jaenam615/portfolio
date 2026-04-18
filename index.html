@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포트폴리오</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <span class="nav-name" id="nav-name"></span>
+    <ul class="nav-links">
+      <li><a href="#projects">프로젝트</a></li>
+      <li><a href="#experience">경력</a></li>
+      <li><a href="#skills">스킬</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="container">
+    <div class="hero" id="hero"></div>
+    <section id="projects"><p class="section-label">Projects</p><div id="projects-list"></div></section>
+    <section id="experience"><p class="section-label">Experience</p><div id="experience-list"></div></section>
+    <section id="skills"><p class="section-label">Skills</p><div class="skills-grid" id="skills-grid"></div></section>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <p id="footer-text"></p>
+  </div>
+</footer>
+
+<script>
+fetch('data.json')
+  .then(r => r.json())
+  .then(data => render(data));
+
+function render(data) {
+  const { meta, projects, experience, skills } = data;
+
+  document.title = meta.name + ' — 포트폴리오';
+  document.getElementById('nav-name').textContent = meta.github.replace('https://github.com/', '');
+  document.getElementById('footer-text').textContent = meta.name + ' · ' + meta.email;
+
+  // Hero
+  document.getElementById('hero').innerHTML = `
+    <p class="hero-label">${meta.role}</p>
+    <h1>${meta.headline.replace(',', ',<br>')}</h1>
+    <p class="hero-desc">${meta.description}</p>
+    <div class="hero-links">
+      <a href="mailto:${meta.email}">${meta.email}</a>
+      <a href="${meta.github}" target="_blank">${meta.github.replace('https://', '')}</a>
+    </div>
+  `;
+
+  // Projects
+  const projectsEl = document.getElementById('projects-list');
+  projects.forEach((p, i) => {
+    const div = document.createElement('div');
+    if (i > 0) div.innerHTML = '<hr class="divider">';
+
+    div.innerHTML += `
+      <div class="project">
+        <div class="project-header">
+          <h2 class="project-title">${p.title}</h2>
+          <span class="project-meta">${p.company} · ${p.year}</span>
+        </div>
+        <p class="project-subtitle">${p.subtitle}</p>
+
+        <div class="project-block">
+          <p class="block-label">Situation</p>
+          <p class="block-text">${p.situation}</p>
+        </div>
+
+        <div class="project-block">
+          <p class="block-label">Analysis & Action</p>
+          ${p.findings.map(f => `
+            <div class="finding">
+              <p class="finding-title">${f.title}</p>
+              <p>${highlight(f.content, f.codes)}</p>
+            </div>
+          `).join('')}
+        </div>
+
+        ${p.results.length ? `
+        <div class="project-block">
+          <p class="block-label">Result</p>
+          <div class="result-grid">
+            ${p.results.map(r => `
+              <div class="result-item">
+                <p class="result-label">${r.label}</p>
+                <p class="result-value">
+                  ${r.before ? `<span class="result-before">${r.before}</span>` : ''}
+                  ${r.after}
+                </p>
+              </div>
+            `).join('')}
+          </div>
+        </div>` : ''}
+
+        <div class="tags">
+          ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+        </div>
+      </div>
+    `;
+    projectsEl.appendChild(div);
+  });
+
+  // Experience
+  const expEl = document.getElementById('experience-list');
+  experience.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'exp-item';
+    div.innerHTML = `
+      <div class="exp-header">
+        <span class="exp-company">${e.company}</span>
+        <span class="exp-period">${e.period}</span>
+      </div>
+      <p class="exp-role">${e.role}</p>
+      <ul class="exp-bullets">
+        ${e.bullets.map(b => `<li>${b}</li>`).join('')}
+      </ul>
+    `;
+    expEl.appendChild(div);
+  });
+
+  // Skills
+  const skillsEl = document.getElementById('skills-grid');
+  skills.forEach(s => {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <p class="skill-group-label">${s.group}</p>
+      <p class="skill-list">${s.items.join('<br>')}</p>
+    `;
+    skillsEl.appendChild(div);
+  });
+}
+
+function highlight(text, codes) {
+  if (!codes || codes.length === 0) return text;
+  let result = text;
+  codes.forEach(c => {
+    const escaped = c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp(escaped, 'g'), `<code>${c}</code>`);
+  });
+  return result;
+}
+</script>
+</body>
+</html>
