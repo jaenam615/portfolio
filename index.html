@@ -23,9 +23,18 @@
 <main>
   <div class="container">
     <div class="hero" id="hero"></div>
-    <section id="projects"><p class="section-label">Projects</p><div id="projects-list"></div></section>
-    <section id="experience"><p class="section-label">Experience</p><div id="experience-list"></div></section>
-    <section id="skills"><p class="section-label">Skills</p><div class="skills-grid" id="skills-grid"></div></section>
+    <section id="projects">
+      <p class="section-label">Projects</p>
+      <div id="projects-list"></div>
+    </section>
+    <section id="experience">
+      <p class="section-label">Experience</p>
+      <div id="experience-list"></div>
+    </section>
+    <section id="skills">
+      <p class="section-label">Skills</p>
+      <div class="skills-grid" id="skills-grid"></div>
+    </section>
   </div>
 </main>
 
@@ -40,6 +49,92 @@ fetch('data.json')
   .then(r => r.json())
   .then(data => render(data));
 
+function hl(text, codes) {
+  if (!codes || !codes.length) return text;
+  let out = text;
+  codes.forEach(c => {
+    const esc = c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    out = out.replace(new RegExp(esc, 'g'), `<code>${c}</code>`);
+  });
+  return out;
+}
+
+function renderResults(results) {
+  if (!results || !results.length) return '';
+  return `
+    <div class="result-grid">
+      ${results.map(r => `
+        <div class="result-item">
+          <p class="result-label">${r.label}</p>
+          <p class="result-value">
+            ${r.before ? `<span class="result-before">${r.before}</span>` : ''}
+            ${r.after}
+          </p>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderProject(p, i) {
+  const wrapper = document.createElement('div');
+  if (i > 0) wrapper.innerHTML = '<hr class="divider">';
+
+  const header = `
+    <div class="project">
+      <div class="project-header">
+        <h2 class="project-title">${p.title}</h2>
+        <span class="project-meta">${p.company} · ${p.year}</span>
+      </div>
+      <p class="project-subtitle">${p.subtitle}</p>
+      <p class="block-label">Situation</p>
+      <p class="block-text">${p.situation}</p>
+  `;
+
+  let body = '';
+
+  if (p.steps && p.steps.length) {
+    body += `<p class="block-label">Analysis & Action</p><div class="steps">`;
+    p.steps.forEach(s => {
+      body += `
+        <div class="step-item">
+          <div class="step-label-col">
+            <span class="step-badge">${s.step}</span>
+          </div>
+          <div class="step-body">
+            <p class="step-title">${s.title}</p>
+            <p class="step-content">${hl(s.content, s.codes)}</p>
+            ${s.result ? `<p class="step-result">→ ${s.result}</p>` : ''}
+          </div>
+        </div>
+      `;
+    });
+    body += `</div>`;
+  } else if (p.findings && p.findings.length) {
+    body += `<p class="block-label">Analysis & Action</p>`;
+    p.findings.forEach(f => {
+      body += `
+        <div class="finding">
+          <p class="finding-title">${f.title}</p>
+          <p>${hl(f.content, f.codes)}</p>
+        </div>
+      `;
+    });
+  }
+
+  body += `
+    <p class="block-label" style="margin-top:1.4rem;">Result</p>
+    ${renderResults(p.results)}
+    <div class="tags">
+      ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+    </div>
+    </div>
+  `;
+
+  wrapper.innerHTML += header + body;
+  return wrapper;
+}
+
 function render(data) {
   const { meta, projects, experience, skills } = data;
 
@@ -47,7 +142,6 @@ function render(data) {
   document.getElementById('nav-name').textContent = meta.github.replace('https://github.com/', '');
   document.getElementById('footer-text').textContent = meta.name + ' · ' + meta.email;
 
-  // Hero
   document.getElementById('hero').innerHTML = `
     <p class="hero-label">${meta.role}</p>
     <h1>${meta.headline.replace(',', ',<br>')}</h1>
@@ -58,60 +152,11 @@ function render(data) {
     </div>
   `;
 
-  // Projects
   const projectsEl = document.getElementById('projects-list');
   projects.forEach((p, i) => {
-    const div = document.createElement('div');
-    if (i > 0) div.innerHTML = '<hr class="divider">';
-
-    div.innerHTML += `
-      <div class="project">
-        <div class="project-header">
-          <h2 class="project-title">${p.title}</h2>
-          <span class="project-meta">${p.company} · ${p.year}</span>
-        </div>
-        <p class="project-subtitle">${p.subtitle}</p>
-
-        <div class="project-block">
-          <p class="block-label">Situation</p>
-          <p class="block-text">${p.situation}</p>
-        </div>
-
-        <div class="project-block">
-          <p class="block-label">Analysis & Action</p>
-          ${p.findings.map(f => `
-            <div class="finding">
-              <p class="finding-title">${f.title}</p>
-              <p>${highlight(f.content, f.codes)}</p>
-            </div>
-          `).join('')}
-        </div>
-
-        ${p.results.length ? `
-        <div class="project-block">
-          <p class="block-label">Result</p>
-          <div class="result-grid">
-            ${p.results.map(r => `
-              <div class="result-item">
-                <p class="result-label">${r.label}</p>
-                <p class="result-value">
-                  ${r.before ? `<span class="result-before">${r.before}</span>` : ''}
-                  ${r.after}
-                </p>
-              </div>
-            `).join('')}
-          </div>
-        </div>` : ''}
-
-        <div class="tags">
-          ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-        </div>
-      </div>
-    `;
-    projectsEl.appendChild(div);
+    projectsEl.appendChild(renderProject(p, i));
   });
 
-  // Experience
   const expEl = document.getElementById('experience-list');
   experience.forEach(e => {
     const div = document.createElement('div');
@@ -129,7 +174,6 @@ function render(data) {
     expEl.appendChild(div);
   });
 
-  // Skills
   const skillsEl = document.getElementById('skills-grid');
   skills.forEach(s => {
     const div = document.createElement('div');
@@ -139,16 +183,6 @@ function render(data) {
     `;
     skillsEl.appendChild(div);
   });
-}
-
-function highlight(text, codes) {
-  if (!codes || codes.length === 0) return text;
-  let result = text;
-  codes.forEach(c => {
-    const escaped = c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    result = result.replace(new RegExp(escaped, 'g'), `<code>${c}</code>`);
-  });
-  return result;
 }
 </script>
 </body>
