@@ -1,0 +1,176 @@
+{
+  "meta": {
+    "name": "남재희",
+    "role": "Data / Backend Engineer",
+    "headline": "병목을 찾고, 90%를 줄입니다.",
+    "description": "성능 최적화는 추측이 아닌 측정에서 시작한다고 믿습니다. Airflow, Spark, Kotlin/Spring을 중심으로 파이프라인과 백엔드 시스템을 설계하고, 문제의 본질을 아키텍처 레벨에서 해결합니다.",
+    "email": "jaenam2060@gmail.com",
+    "github": "https://github.com/jaenam615"
+  },
+  "projects": [
+    {
+      "id": "etl-bottleneck",
+      "title": "ETL 파이프라인 병목 해소",
+      "company": "AB180",
+      "year": "2025",
+      "subtitle": "광고 비용 데이터 파이프라인 전면 재설계",
+      "situation": "고객 수 증가에 따라 광고 비용 ETL 파이프라인 처리 시간이 4시간 30분을 초과하며 확장성 한계에 도달했습니다. Airflow Gantt Chart 분석으로 세 구간의 병목을 식별했습니다.",
+      "findings": [
+        {
+          "title": "① 환율 쿼리 — Disk I/O 급증",
+          "content": "self-join 안티패턴으로 동일 테이블을 두 번 스캔해 Disk I/O가 급증하고 있었습니다. PARTITION BY + ROW_NUMBER 윈도우 함수로 대체해 CPU-bound 연산으로 전환했습니다. 수직 확장 시 처리 시간이 선형적으로 감소하는 구조도 확보했습니다.",
+          "codes": ["self-join", "PARTITION BY + ROW_NUMBER"]
+        },
+        {
+          "title": "② Transform — straggler tail latency",
+          "content": "소수의 straggler 파일(~1,780만 row)이 tail latency를 지배하며 병렬 처리 전체를 지연시키고 있었습니다. chunk 단위 분할 후 병렬 transform → aggregate하는 MapReduce 기반 아키텍처로 재설계했습니다.",
+          "codes": []
+        },
+        {
+          "title": "③ Data Acquisition — Rate Limit 미고려 retry",
+          "content": "단일 API의 IP 단위 Rate Limit을 고려하지 않은 exponential retry 전략이 고객 수 증가에 따라 기하급수적 지연을 유발했습니다. sleep 상한 제한 및 jitter 기반 적응형 재시도로 개선했습니다.",
+          "codes": []
+        }
+      ],
+      "results": [
+        { "label": "환율 쿼리", "before": "87분", "after": "12분" },
+        { "label": "Transform", "before": "37분", "after": "4분" },
+        { "label": "전체 파이프라인", "before": "4h 34m", "after": "1h 50m" },
+        { "label": "운영 리소스", "before": null, "after": "45% 절감" }
+      ],
+      "tags": ["Airflow", "Spark", "MapReduce", "Window Function", "Python"]
+    },
+    {
+      "id": "spark-lineage",
+      "title": "Spark Job Lineage 병목 제거",
+      "company": "넛지헬스케어",
+      "year": "2026",
+      "subtitle": "AWS Glue Job 장애 분석 및 아키텍처 재설계",
+      "situation": "app_visit_history Glue Job이 6시간 이상 실행 중 77.5%에서 처리 속도가 1/3 이하로 급감하며 사실상 중단 상태에 빠졌습니다. 야간 장애 상황에서 임시 복구에 그치지 않고 근본 원인을 추적했습니다.",
+      "findings": [
+        {
+          "title": "Driver Stop-the-World GC",
+          "content": "같은 시각 9개 executor에서 동시에 Ignoring response for RPC 경고가 발생했습니다. Driver가 GC로 완전히 멈춰 executor RPC 응답을 수신하지 못한 것이었습니다.",
+          "codes": ["Ignoring response for RPC"]
+        },
+        {
+          "title": "근본 원인 — lineage 폭발",
+          "content": "1,609개 lazy DataFrame을 union으로 누적한 뒤 count() action을 호출하자 29,360개 task가 동시 생성됐습니다. Driver가 이 메타데이터를 전부 메모리에 유지하며 GC 압박이 시작됐고, 이어진 repartition().write()가 동일 lineage를 재평가하며 Driver를 무너뜨렸습니다.",
+          "codes": ["union", "count()", "repartition().write()"]
+        }
+      ],
+      "results": [
+        { "label": "실행 시간", "before": "10시간+", "after": "2시간" },
+        { "label": "Driver task 추적", "before": "29,360", "after": "~18" },
+        { "label": "MySQL 읽기", "before": "2회/파티션", "after": "1회" }
+      ],
+      "tags": ["Spark", "AWS Glue", "Lazy Evaluation", "Driver GC", "Python"]
+    },
+    {
+      "id": "trace-pipeline",
+      "title": "Trace 데이터 분석 파이프라인",
+      "company": "넛지헬스케어",
+      "year": "2026",
+      "subtitle": "2일 TTL 제약 Trace 데이터의 warehouse 적재 설계",
+      "situation": "2일 TTL로 제한된 Trace 데이터를 분석계에서 활용하려면 warehouse 적재 파이프라인이 필요했습니다. 세 가지 구조를 비교하고 비용·확장성을 기준으로 결정했습니다.",
+      "findings": [
+        {
+          "title": "Athena 기반 구조",
+          "content": "쿼리당 스캔 비용이 누적되어 대용량 필터링에 비효율적이었습니다.",
+          "codes": []
+        },
+        {
+          "title": "Alloy direct export",
+          "content": "운영 복잡도가 높고 필터링 유연성이 낮았습니다.",
+          "codes": []
+        },
+        {
+          "title": "Spark 전처리 방식 (채택)",
+          "content": "S3 Parquet 데이터를 Spark로 필터링 후 GCS로 적재합니다. 대용량 필터링 효율과 확장성을 확보하면서 쿼리 비용을 제어할 수 있었습니다.",
+          "codes": []
+        }
+      ],
+      "results": [
+        { "label": "분석 환경", "before": null, "after": "external table + dbt" },
+        { "label": "필터 유연성", "before": null, "after": "설정 파일 분리" }
+      ],
+      "tags": ["Spark", "S3", "GCS", "dbt", "Parquet"]
+    },
+    {
+      "id": "llm-chat",
+      "title": "LLM Chat 시스템",
+      "company": "개인 프로젝트",
+      "year": "2026",
+      "subtitle": "Kotlin/Spring Boot 기반 AI 채팅 백엔드",
+      "situation": "3시간 제한의 기업 과제로, LLM 연동 능력보다 제한된 시간 내 올바른 설계 판단을 내리는 능력을 평가하는 과제로 해석했습니다.",
+      "findings": [
+        {
+          "title": "@Transactional + Flux 충돌",
+          "content": "@Transactional 메서드에서 Flux를 반환하면 트랜잭션이 메서드 리턴 시점에 닫혀, 스트리밍 완료 후 DB 접근이 불가했습니다. DB 접근 구간(prepareChat(), saveChat())을 별도 @Transactional 메서드로 분리해 해결했습니다. 부수 효과로 LLM 호출 중 DB 커넥션 점유 문제도 함께 해결됐습니다.",
+          "codes": ["@Transactional", "Flux", "prepareChat()", "saveChat()"]
+        },
+        {
+          "title": "N+1 쿼리 제거",
+          "content": "스레드 목록 조회 시 각 스레드마다 채팅을 개별 조회하던 N+1 문제를 스레드 ID 목록 IN절 일괄 조회 + 메모리 그룹화로 해결했습니다. 쿼리 수 21회 → 2회로 감소했습니다.",
+          "codes": ["IN"]
+        },
+        {
+          "title": "낙관락으로 데이터 정합성 확보",
+          "content": "읽기 빈도가 높고 쓰기 경합이 낮은 구조임을 파악해 비관락 대신 낙관락을 채택했습니다. unique 제약과 조합해 lost update 및 중복 생성 문제를 해결했습니다.",
+          "codes": []
+        },
+        {
+          "title": "Circuit Breaker로 장애 전파 차단",
+          "content": "외부 LLM API 장애 시 retry 누적으로 스레드·커넥션이 고갈되는 cascade 실패 가능성을 파악했습니다. Resilience4j Circuit Breaker를 적용해 연속 실패 구간을 사전 차단하고 즉시 fallback 응답을 반환했습니다.",
+          "codes": []
+        }
+      ],
+      "results": [
+        { "label": "쿼리 수", "before": "21회", "after": "2회" }
+      ],
+      "tags": ["Kotlin", "Spring Boot", "PostgreSQL", "Resilience4j", "JWT", "Docker"]
+    }
+  ],
+  "experience": [
+    {
+      "company": "넛지헬스케어",
+      "role": "인턴 · 백엔드 엔지니어",
+      "period": "2026.03 — 재직 중",
+      "bullets": [
+        "1,600개 DataFrame union → Driver lineage 폭발 원인 분석 및 재설계, 10시간 → 2시간",
+        "Trace 데이터 warehouse 적재 파이프라인 설계 및 구축",
+        "15+ AWS 계정 리소스 중앙화 및 Terraform IaC 도입",
+        "야간 장애 임시 복구에 그치지 않고 근본 원인 추적하여 재발 방지"
+      ]
+    },
+    {
+      "company": "에이비일팔공 (AB180)",
+      "role": "인턴 · 백엔드 엔지니어",
+      "period": "2025.01 — 2025.09",
+      "bullets": [
+        "self-join → 윈도우 함수 전환으로 Disk I/O → CPU-bound 전환, 87분 → 12분",
+        "straggler tail latency 원인 파악, chunk 분할 + MapReduce 병렬 처리로 재설계, 37분 → 4분",
+        "전체 파이프라인 4시간 34분 → 1시간 50분, 운영 리소스 45% 절감 및 선형 확장 구조 확보",
+        "외부 API 문서 변경 감지 시스템 개선, 불필요한 알림 76% 제거"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "group": "Languages",
+      "items": ["Python", "Kotlin"]
+    },
+    {
+      "group": "Data Engineering",
+      "items": ["Airflow", "Spark", "dbt", "Snowflake"]
+    },
+    {
+      "group": "Backend",
+      "items": ["Spring Boot", "PostgreSQL", "MySQL", "Redis"]
+    },
+    {
+      "group": "Infra",
+      "items": ["AWS", "Docker", "Terraform", "Github Actions"]
+    }
+  ]
+}
