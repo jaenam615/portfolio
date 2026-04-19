@@ -154,30 +154,38 @@
       "title": "Trace 데이터 분석 파이프라인",
       "company": "넛지헬스케어",
       "year": "2026",
-      "subtitle": "2일 TTL 제약 Trace 데이터의 warehouse 적재 설계",
-      "situation": "2일 TTL로 제한된 Trace 데이터를 분석계에서 활용하려면 warehouse 적재 파이프라인이 필요했습니다. 세 가지 구조를 비교하고 비용·확장성을 기준으로 결정했습니다.",
+      "subtitle": "Tempo → BigQuery 적재 구조 비교 + 테넌트별 비용 최적화",
+      "situation": "Tempo에 저장되는 trace 데이터는 2일 TTL 제약이 있어, abuse 대응 같은 장기 분석을 위해 BigQuery로 적재하는 파이프라인이 필요했습니다. 두 축(파일 기반 ETL vs OTel 직접 export)과 여러 실행 옵션(Athena·Python Shell·Spark)을 운영 부담·비용·확장성 관점에서 비교했고, Tempo vParquet4 블록 포맷 자체의 제약도 고려해야 했습니다.",
       "findings": [
         {
-          "title": "Athena 기반 구조 — 제외",
-          "content": "쿼리당 스캔 비용이 누적되어 대용량 필터링에 비효율적이었습니다.",
-          "codes": []
+          "title": "Tempo vParquet4 포맷 — parquet 분리 전처리",
+          "content": "Tempo가 저장하는 vParquet4 블록은 data.parquet 외에 meta.json, bloom-0, index 등 non-parquet 파일이 혼재되어 있어 Athena나 Spark가 블록 단위로 읽으면 non-parquet 파일에서 실패했습니다. data.parquet만 별도 S3로 분리 복사하는 전처리 단계를 모든 방식의 공통 출발점으로 두고, 같은 리전 cross-account egress 무료 구간을 활용해 전송 비용을 0으로 유지했습니다.",
+          "codes": ["vParquet4", "aws s3 sync"]
         },
         {
-          "title": "Alloy direct export — 제외",
-          "content": "운영 복잡도가 높고 필터링 유연성이 낮았습니다.",
-          "codes": []
+          "title": "Athena 기반 ETL → Airflow Python 단순화",
+          "content": "초기 설계(S3 → S3 parquet 필터 → Athena INSERT INTO → S3 endpoint 필터 → STS → GCS → BQ)는 Athena Workgroup, Glue Catalog Table 2개, STS Transfer Job 등 관리 대상 인프라가 많았고 MWAA → DE Role → Monitoring S3 cross-account IAM 체인도 복잡했습니다. PyArrow로 data.parquet을 읽어 메모리에서 필터·UNNEST한 뒤 GCS로 직접 쓰는 Airflow Python task 단일 구조로 전환하고 BQ External Table로 분석 환경에 노출해 관리 포인트와 IAM 체인을 대폭 축소했습니다. 23GB/일 규모에서도 블록당 7MB 단위 처리 + del df로 누적 메모리를 회피했고, 필요 시 PyArrow ParquetWriter streaming write로 전환 가능한 여지를 남겼습니다.",
+          "codes": ["PyArrow", "Airflow DAG", "del df", "ParquetWriter", "BQ External Table"]
         },
         {
-          "title": "Spark 전처리 방식 — 채택",
-          "content": "S3 Parquet 데이터를 Spark로 필터링 후 GCS로 적재하는 방식을 선택했습니다. 대용량 필터링 효율과 확장성을 확보하면서 쿼리 비용을 제어할 수 있었습니다. external table + dbt 기반 분석 환경을 구축하고, 필터를 설정 파일로 분리해 API/Status 단위 데이터 추출 유연성을 확보했습니다.",
-          "codes": []
+          "title": "테넌트 규모별 실행 모드 차등화 — Python Shell + Spark 혼합",
+          "content": "수십 GB 규모에서는 Pandas DF가 cold start 영향을 뒤집고 Spark보다 빠르다는 점을 확인했습니다. 10 테넌트 월간 비용 비교(Python Shell 0.0625 DPU ~$2.10 / 1 DPU ~$11 / Spark 2 DPU ~$44)에서 소규모 테넌트에 Spark를 쓰는 것은 속도 이점 대비 과한 선택이었습니다. 반면 1.5TB/일 규모에서는 Python Shell 6시간 $80 vs Spark 20분 $9로 결과가 역전돼, 통일성을 포기하고 Airflow 상수(SPARK_JOB_TENANT, PYTHON_SHELL_TENANT)로 테넌트별 실행 모드를 분기하는 구조를 채택했습니다. 월 $40+ 절감과 속도 균형을 함께 확보했습니다.",
+          "codes": ["Python Shell", "Glue Spark", "SPARK_JOB_TENANT", "PYTHON_SHELL_TENANT"]
+        },
+        {
+          "title": "OTel/Alloy direct export — 기술 가능성 vs 운영 현실성",
+          "content": "각 백엔드에 배포된 Alloy(OTel Collector)에 BigQuery Exporter를 붙여 BQ로 직접 streaming insert하는 방식도 기술적으로는 가능했습니다. 제외 근거: ① 필터 config가 각 테넌트 Alloy에 위치해 DE가 독립적으로 필터 변경 불가, 변경마다 Alloy 재배포 필요, ② 엔드포인트·프로젝트 추가마다 백엔드 팀 협조 필요로 확장 속도 저하, ③ Alloy가 백엔드 서버에 상주해 CPU 경합으로 응답속도 영향 가능(SRE 팀 우려), ④ 각 테넌트에 GCP 인증정보 배포로 보안 표면 확대, ⑤ BQ Streaming Insert + Storage 비용 증가. 기술적 가능성과 운영 현실성을 분리해 후자를 우선했습니다.",
+          "codes": ["Alloy", "OTel Collector", "BQ Streaming Insert"]
         }
       ],
       "results": [
-        { "label": "분석 환경", "before": null, "after": "external table + dbt" },
-        { "label": "필터 유연성", "before": null, "after": "설정 파일 분리" }
+        { "label": "관리 인프라", "before": "Athena + Glue Catalog + STS", "after": "Airflow Python task" },
+        { "label": "월 비용 (10 테넌트)", "before": "Spark 단일 ~$44", "after": "혼합 ~$15" },
+        { "label": "필터 변경", "before": "Alloy 재배포 필요", "after": "Airflow 설정만 수정" },
+        { "label": "백엔드 영향", "before": "CPU 경합 가능", "after": "영향 0" },
+        { "label": "확장성", "before": "백엔드 팀 협조", "after": "DE 독립 확장" }
       ],
-      "tags": ["Airflow", "Python", "AWS Glue", "Spark", "S3", "GCS", "dbt"]
+      "tags": ["Airflow", "Python", "PyArrow", "AWS Glue", "Spark", "S3", "GCS", "BigQuery", "OpenTelemetry"]
     },
     {
       "id": "de-infra",
