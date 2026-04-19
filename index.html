@@ -80,7 +80,13 @@ fetch('data.json')
   .then(r => r.json())
   .then(loadDiagramSources)
   .then(render)
-  .then(() => { if (window.mermaid) mermaid.run({ querySelector: '.mermaid' }); });
+  .then(() => { if (window.mermaid) mermaid.run({ querySelector: '.mermaid' }); })
+  .then(() => {
+    if (window.location.hash) {
+      const el = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+      if (el) el.scrollIntoView({ behavior: 'instant', block: 'start' });
+    }
+  });
 
 function hl(text, codes) {
   if (!codes || !codes.length) return text;
