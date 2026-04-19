@@ -63,6 +63,22 @@ function hl(text, codes) {
   return out;
 }
 
+function renderImages(images) {
+  if (!images || !images.length) return '';
+  return `
+    <div class="figures">
+      ${images.map(img => `
+        <figure class="figure">
+          <a href="${img.src}" target="_blank" rel="noopener">
+            <img src="${img.src}" alt="${img.caption || ''}" loading="lazy" />
+          </a>
+          ${img.caption ? `<figcaption>${img.caption}</figcaption>` : ''}
+        </figure>
+      `).join('')}
+    </div>
+  `;
+}
+
 function renderResults(results) {
   if (!results || !results.length) return '';
   return `
@@ -104,6 +120,7 @@ function renderProject(p, i) {
           <div>
             <p class="step-title">${s.title}</p>
             <p class="step-content">${hl(s.content, s.codes)}</p>
+            ${renderImages(s.images)}
             ${s.result ? `<p class="step-result">→ ${s.result}</p>` : ''}
           </div>
         </div>
@@ -116,6 +133,7 @@ function renderProject(p, i) {
         <div class="finding">
           <p class="finding-title">${f.title}</p>
           <p>${hl(f.content, f.codes)}</p>
+          ${renderImages(f.images)}
         </div>
       `;
     });

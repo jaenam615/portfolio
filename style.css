@@ -371,6 +371,37 @@ nav .inner {
   line-height: 1.8;
 }
 
+/* Figures */
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.8rem;
+  margin: 0.9rem 0 0.4rem;
+}
+.figure {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.figure a { display: block; }
+.figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.figure figcaption {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 0.45rem 0.7rem;
+  border-top: 1px solid var(--faint);
+  background: var(--step-bg);
+  line-height: 1.5;
+}
+
 /* Result grid */
 .result-grid {
   display: grid;
