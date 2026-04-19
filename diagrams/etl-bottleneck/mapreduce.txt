@@ -1,0 +1,13 @@
+            대용량 파일
+                 │
+        [Downloader + Splitter]
+                 ↓
+        ┌────────┴────────┐
+     chunk_1.csv      chunk_2.csv
+         ↓                ↓
+   Transform Task 1  Transform Task 2
+         ↓                ↓
+    Temp Table 1      Temp Table 2
+         └────────┬────────┘
+                  ↓
+          Merge to Final Table

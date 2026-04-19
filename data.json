@@ -39,9 +39,6 @@
       "year": "2025",
       "subtitle": "광고 비용 데이터 파이프라인 전면 재설계",
       "situation": "고객 수 증가에 따라 광고 비용 ETL 파이프라인이 4시간 SLA를 초과해 4시간 30분에 도달하며 확장성 한계에 부딪혔습니다. 단순 인프라 증설로는 해결되지 않는 구조적 문제가 있었습니다. Airflow Gantt Chart 분석을 통해 유독 시간이 오래 소요되는 세 구간을 식별했습니다: ① 환율 적용 쿼리, ② Transform 메시지 처리, ③ Data Acquisition.",
-      "situation_images": [
-        { "src": "images/etl-bottleneck/totaltime-before.webp", "caption": "작업 전 전체 파이프라인 실행 시간" }
-      ],
       "steps": [
         {
           "step": "1단계",
@@ -60,6 +57,9 @@
           "title": "Transform — straggler tail latency 제거",
           "content": "소수의 straggler 파일(~1,780만 row)이 tail latency를 지배하는 데이터 스큐 문제였습니다. 대부분의 파일은 기존 ECS 병렬 처리로 이미 충분히 소화되고 있었고, 병목은 일부 대용량 파일 구간에 국한됐습니다. 일부 파일 때문에 Spark를 도입하면 전체 파이프라인이 클러스터 운영·모니터링·장애 대응 부담을 떠안게 되므로, 문제 규모에 비해 과한 선택이라 판단해 기존 ECS 위에서 MapReduce 패턴을 직접 구현했습니다. 대용량 Raw 파일을 chunk 단위로 분할 저장하고 병렬 transform 후 aggregate하는 구조로 재설계했으며, Transform 전용 ECS 클러스터를 분리해 태스크 수 조절만으로 수평 확장이 가능하도록 확보했습니다.",
           "codes": [],
+          "ascii": [
+            { "src": "diagrams/etl-bottleneck/mapreduce.txt", "caption": "MapReduce 기반 Transform 아키텍처" }
+          ],
           "result": "37분 → 4분 (90% 단축)"
         },
         {
@@ -136,7 +136,10 @@
         {
           "title": "Circuit Breaker로 장애 전파 차단",
           "content": "retry 3회 + 10초 타임아웃 구조는 LLM API 다운 시 단일 요청당 최대 ~33초 스레드를 점유해, 동시 요청 누적 시 커넥션 풀 고갈로 cascade 실패 위험이 있었습니다. Resilience4j Circuit Breaker를 적용해 최근 10회 실패율 50% 초과 시 OPEN으로 전환, 30초간 즉시 fallback(503)으로 응답하도록 했습니다. Retry(일시적 오류)와 Circuit Breaker(지속 장애)는 역할이 다른 계층이라 병행했고, Rate Limiting은 인스턴스 간 상태 공유와 설정 중복 문제로 애플리케이션 대신 API Gateway 계층의 관심사로 분리했습니다.",
-          "codes": ["@CircuitBreaker", "Resilience4j", "OPEN", "HALF_OPEN", "fallback"]
+          "codes": ["@CircuitBreaker", "Resilience4j", "OPEN", "HALF_OPEN", "fallback"],
+          "ascii": [
+            { "src": "diagrams/llm-chat/circuit-breaker.txt", "caption": "Circuit Breaker 상태 전이" }
+          ]
         }
       ],
       "results": [
@@ -204,7 +207,7 @@
       ],
       "results": [
         { "label": "자동 알림", "before": "220건/분기", "after": "48건/분기" },
-        { "label": "알림 감소율", "before": null, "after": "76% 감소" },
+        { "label": "알림 감소율", "before": null, "after": "78% 감소" },
         { "label": "채널 참여율", "before": null, "after": "6배 이상 증가" },
         { "label": "타 팀 확장", "before": null, "after": "PM 등 트래킹 문서 추가 요청" }
       ],

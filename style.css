@@ -371,6 +371,33 @@ nav .inner {
   line-height: 1.8;
 }
 
+/* ASCII diagrams */
+.ascii-figure {
+  margin: 0.9rem 0 0.4rem;
+}
+.ascii-block {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--step-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0;
+}
+.ascii-figure figcaption {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-top: 0.4rem;
+  padding: 0 0.2rem;
+  line-height: 1.5;
+}
+
 /* Figures */
 .figures {
   display: grid;
