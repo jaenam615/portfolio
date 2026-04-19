@@ -84,8 +84,8 @@
       "title": "Spark Job Lineage 병목 제거",
       "company": "넛지헬스케어",
       "year": "2026",
-      "subtitle": "AWS Glue Job 야간 장애 분석 및 아키텍처 재설계",
-      "situation": "app_visit_history Glue Job이 6시간 이상 실행 중 77.5% 지점에서 처리 속도가 1/3 이하로 급감하며 사실상 중단 상태에 빠졌습니다. 야간 장애 상황에서 임시 복구에 그치지 않고 근본 원인을 추적했습니다.",
+      "subtitle": "AWS Glue Job 장애 분석 및 아키텍처 재설계",
+      "situation": "Glue Job이 6시간 이상 실행 중 77.5% 지점에서 처리 속도가 1/3 이하로 급감하며 사실상 중단 상태에 빠졌습니다.",
       "findings": [
         {
           "title": "Driver Stop-the-World GC",
