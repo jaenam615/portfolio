@@ -1,12 +1,36 @@
 {
   "meta": {
     "name": "남재희",
-    "role": "Data / Backend Engineer",
-    "headline": "데이터에 강점을 지닌 백엔드 개발자입니다.",
-    "description": "성능 최적화는 추측이 아닌 측정에서 시작한다고 믿습니다. Airflow, Spark, Kotlin/Spring을 중심으로 파이프라인과 백엔드 시스템을 설계하고, 문제의 본질을 아키텍처 레벨에서 해결합니다.",
+    "role": "Data-intensive Backend Engineer",
+    "headline": "데이터에 강한,",
+    "headline_em": "백엔드 엔지니어입니다.",
+    "description": "대용량 데이터 처리부터 백엔드 시스템 설계까지, 데이터가 흐르는 모든 구간에서 문제를 찾고 해결합니다. Spark, Airflow, Kotlin/Spring을 중심으로 분산 처리와 서비스 안정성을 함께 고려하는 엔지니어입니다.",
     "email": "jaenam2060@gmail.com",
     "github": "https://github.com/jaenam615"
   },
+  "experience": [
+    { "company": "넛지헬스케어", "role": "Backend Engineer Intern", "period": "2026.03 — 현재" },
+    { "company": "AB180", "role": "Backend Engineer Intern", "period": "2025.01 — 2025.09" },
+    { "company": "크래프톤 정글", "role": "수료", "period": "2024.03 — 2024.08" }
+  ],
+  "skills": [
+    {
+      "group": "Languages",
+      "items": ["Python", "Kotlin"]
+    },
+    {
+      "group": "Data Engineering",
+      "items": ["Airflow", "Spark", "dbt", "Snowflake"]
+    },
+    {
+      "group": "Backend",
+      "items": ["Spring Boot", "PostgreSQL", "MySQL", "Redis"]
+    },
+    {
+      "group": "Infra",
+      "items": ["AWS", "Github Actions", "Docker", "Terraform"]
+    }
+  ],
   "projects": [
     {
       "id": "etl-bottleneck",
@@ -197,35 +221,5 @@
       ],
       "tags": ["JavaScript", "Node.js", "Socket.IO", "MongoDB", "AWS"]
     }
-  ],
-  "experience": [
-    {
-      "company": "넛지헬스케어",
-      "role": "인턴 · 백엔드 엔지니어",
-      "period": "2026.03 — 재직 중",
-      "bullets": [
-        "1,600개 DataFrame union → Driver lineage 폭발 원인 분석 및 재설계, 10시간 → 2시간",
-        "Trace 데이터 warehouse 적재 파이프라인 설계 및 구축",
-        "15+ AWS 계정 리소스 중앙화 및 Terraform IaC 도입",
-        "야간 장애 임시 복구에 그치지 않고 근본 원인 추적하여 재발 방지"
-      ]
-    },
-    {
-      "company": "에이비일팔공 (AB180)",
-      "role": "인턴 · 백엔드 엔지니어",
-      "period": "2025.01 — 2025.09",
-      "bullets": [
-        "self-join → 윈도우 함수 전환으로 Disk I/O → CPU-bound 전환, 87분 → 12분",
-        "straggler tail latency 원인 파악, chunk 분할 + MapReduce 병렬 처리로 재설계, 37분 → 4분",
-        "전체 파이프라인 4시간 34분 → 1시간 50분, 운영 리소스 45% 절감 및 선형 확장 구조 확보",
-        "외부 API 문서 변경 감지 시스템 개선, 불필요한 알림 76% 제거"
-      ]
-    }
-  ],
-  "skills": [
-    { "group": "Languages", "items": ["Python", "Kotlin"] },
-    { "group": "Data Engineering", "items": ["Airflow", "Spark", "dbt", "Snowflake"] },
-    { "group": "Backend", "items": ["Spring Boot", "PostgreSQL", "MySQL", "Redis"] },
-    { "group": "Infra", "items": ["AWS", "Docker", "Terraform", "Github Actions"] }
   ]
 }
