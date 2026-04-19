@@ -158,17 +158,17 @@
       "situation": "Tempo의 trace 데이터는 2일 TTL 제약이 있어 abuse 대응 같은 장기 분석을 위해 BigQuery로 적재할 파이프라인이 필요했습니다. 파일 기반 ETL과 OTel 직접 export 두 축을 운영 부담·비용·확장성으로 비교했습니다.",
       "findings": [
         {
-          "title": "Athena 기반 ETL → Airflow Python 단순화",
-          "content": "초기안은 Athena 기반 ETL이었지만, Tempo vParquet4 블록에 data.parquet·meta.json·bloom-0·index가 혼재해 parquet 분리 전처리 단계가 필수였습니다. 같은 리전 cross-account 전송이라 비용은 0이지만, 이 단계에 Athena Workgroup·Glue Catalog Table 2개·STS Transfer Job·cross-account IAM 체인이 겹쳐 실패 지점이 너무 많다고 판단해 제외했습니다. 대신 PyArrow로 data.parquet을 읽어 메모리 필터·UNNEST 후 GCS에 직접 쓰는 Airflow Python task 단일 구조로 전환, BQ External Table로 분석 환경에 노출했습니다. 23GB/일 규모는 블록당 7MB 단위 처리 + del df로 누적 메모리를 회피했습니다.",
-          "codes": ["vParquet4", "PyArrow", "Airflow DAG", "del df", "ParquetWriter", "BQ External Table"],
+          "title": "Athena 기반 ETL → Airflow + Glue Spark 단순화",
+          "content": "초기안은 Athena 기반 ETL이었지만, Tempo vParquet4 블록에 data.parquet·meta.json·bloom-0·index가 혼재해 parquet 분리 전처리 단계가 필수였습니다. 같은 리전 cross-account 전송이라 비용은 0이지만, 이 단계에 Athena Workgroup·Glue Catalog Table 2개·STS Transfer Job·cross-account IAM 체인이 겹쳐 실패 지점이 너무 많다고 판단해 제외했습니다. 대신 Airflow DAG가 Glue Spark job을 실행해 data.parquet을 필터·UNNEST 후 GCS에 적재하고, BQ External Table로 분석 환경에 노출하는 구조로 전환해 관리 포인트와 IAM 체인을 대폭 축소했습니다.",
+          "codes": ["vParquet4", "Airflow DAG", "Glue Spark", "BQ External Table"],
           "mermaid": [
-            { "src": "diagrams/trace-pipeline/architecture.mmd", "caption": "채택한 파이프라인 구조 — 테넌트별 실행 모드 라우팅" }
+            { "src": "diagrams/trace-pipeline/architecture.mmd", "caption": "채택한 파이프라인 구조" }
           ]
         },
         {
-          "title": "테넌트 규모별 실행 모드 차등화 — Python Shell + Spark 혼합",
-          "content": "수십 GB 규모는 cold start 영향으로 Pandas DF가 Spark보다 빠른 반면, 1.5TB/일 테넌트는 Python Shell 6시간 $80 vs Spark 20분 $9로 결과가 뒤집혔습니다. 통일된 실행 모드로는 비용·속도 양쪽 최적화가 불가능하다고 판단해, Airflow 상수(SPARK_JOB_TENANT, PYTHON_SHELL_TENANT)로 테넌트별 분기 구조를 채택했습니다. 통일성을 포기한 대신 월 $40+ 절감과 TB급 처리 시간 단축을 함께 확보했습니다.",
-          "codes": ["Python Shell", "Glue Spark", "SPARK_JOB_TENANT", "PYTHON_SHELL_TENANT"],
+          "title": "실행 모드 선택 — Python Shell 고려 후 Spark 통일",
+          "content": "실행 모드로 Python Shell과 Spark를 실측 비교했습니다. 수십 GB 규모는 cold start 영향으로 Pandas DF가 더 빠르고 비용도 유리했지만, 1.5TB/일 테넌트는 Python Shell 6시간 $80 vs Spark 20분 $9로 결과가 뒤집혀 Spark가 필수였습니다. 테넌트 규모별 분기로 비용을 더 낮출 수도 있었지만, flow 통일과 유지보수 단순성을 우선해 전체를 Glue Spark로 처리하기로 했습니다. 소규모 테넌트 비용이 소폭 늘어나는 것은 감수하고 실행 경로를 하나로 유지했습니다.",
+          "codes": ["Python Shell", "Glue Spark"],
           "tables": [
             {
               "caption": "Glue 실행 모드별 비용 비교 (수십 GB/일 기준)",
@@ -188,13 +188,13 @@
         }
       ],
       "results": [
-        { "label": "관리 인프라", "before": "Athena + Glue Catalog + STS", "after": "Airflow Python task" },
-        { "label": "월 비용 (10 테넌트)", "before": "Spark 단일 ~$44", "after": "혼합 ~$15" },
-        { "label": "필터 변경", "before": "Alloy 재배포 필요", "after": "Airflow 설정만 수정" },
+        { "label": "관리 인프라", "before": "Athena + Glue Catalog + STS", "after": "Airflow + Glue Spark" },
+        { "label": "실행 경로", "before": null, "after": "Spark 단일 통일" },
+        { "label": "필터 변경", "before": "Alloy 재배포 필요", "after": "DAG 설정만 수정" },
         { "label": "백엔드 영향", "before": "CPU 경합 가능", "after": "영향 0" },
         { "label": "확장성", "before": "백엔드 팀 협조", "after": "DE 독립 확장" }
       ],
-      "tags": ["Airflow", "Python", "PyArrow", "AWS Glue", "Spark", "S3", "GCS", "BigQuery", "OpenTelemetry"]
+      "tags": ["Airflow", "Python", "AWS Glue", "Spark", "S3", "GCS", "BigQuery", "OpenTelemetry"]
     },
     {
       "id": "de-infra",
