@@ -35,6 +35,7 @@
 
       <!-- Sidebar -->
       <aside class="sidebar" id="skills">
+        <div id="toc-sidebar"></div>
         <div id="skills-sidebar"></div>
         <div id="experience-sidebar"></div>
       </aside>
@@ -83,7 +84,7 @@ function renderProject(p, i) {
   if (i > 0) wrap.innerHTML = '<hr class="divider">';
 
   let html = `
-    <div class="project">
+    <div class="project" id="${p.id}">
       <div class="project-header">
         <h2 class="project-title">${p.title}</h2>
         <span class="project-meta">${p.company} · ${p.year}</span>
@@ -131,6 +132,34 @@ function renderProject(p, i) {
   return wrap;
 }
 
+function renderToc(projects) {
+  const tocEl = document.getElementById('toc-sidebar');
+  tocEl.innerHTML = `
+    <p class="sidebar-label">Projects</p>
+    <nav class="toc">
+      ${projects.map(p => `
+        <a class="toc-item" href="#${p.id}" data-id="${p.id}">${p.title}</a>
+      `).join('')}
+    </nav>
+  `;
+
+  // Scroll spy
+  const items = document.querySelectorAll('.toc-item');
+  const projectEls = projects.map(p => document.getElementById(p.id)).filter(Boolean);
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        items.forEach(item => item.classList.remove('active'));
+        const active = document.querySelector(`.toc-item[data-id="${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+
+  projectEls.forEach(el => observer.observe(el));
+}
+
 function render(data) {
   const { meta, projects, experience, skills } = data;
 
@@ -152,6 +181,9 @@ function render(data) {
   // Projects
   const projectsEl = document.getElementById('projects-list');
   projects.forEach((p, i) => projectsEl.appendChild(renderProject(p, i)));
+
+  // ToC (after projects are rendered)
+  renderToc(projects);
 
   // Sidebar — Skills
   const skillsEl = document.getElementById('skills-sidebar');
