@@ -10,44 +10,49 @@
 <body>
 
 <nav>
-  <div class="container">
+  <div class="inner">
     <span class="nav-name" id="nav-name"></span>
     <ul class="nav-links">
       <li><a href="#projects">프로젝트</a></li>
-      <li><a href="#experience">경력</a></li>
       <li><a href="#skills">스킬</a></li>
     </ul>
   </div>
 </nav>
 
 <main>
-  <div class="container">
+  <div class="container-narrow">
     <div class="hero" id="hero"></div>
-    <section id="projects">
-      <p class="section-label">Projects</p>
-      <div id="projects-list"></div>
-    </section>
-    <section id="experience">
-      <p class="section-label">Experience</p>
-      <div id="experience-list"></div>
-    </section>
-    <section id="skills">
-      <p class="section-label">Skills</p>
-      <div class="skills-grid" id="skills-grid"></div>
-    </section>
+  </div>
+
+  <div class="container">
+    <div class="main-layout">
+
+      <!-- Main content -->
+      <div class="main-content">
+        <div class="section-block" id="projects">
+          <p class="section-label">Projects</p>
+          <div id="projects-list"></div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar" id="skills">
+        <div id="skills-sidebar"></div>
+        <div id="experience-sidebar"></div>
+      </aside>
+
+    </div>
   </div>
 </main>
 
 <footer>
-  <div class="container">
-    <p id="footer-text"></p>
-  </div>
+  <p id="footer-text"></p>
 </footer>
 
 <script>
 fetch('data.json')
   .then(r => r.json())
-  .then(data => render(data));
+  .then(render);
 
 function hl(text, codes) {
   if (!codes || !codes.length) return text;
@@ -67,8 +72,7 @@ function renderResults(results) {
         <div class="result-item">
           <p class="result-label">${r.label}</p>
           <p class="result-value">
-            ${r.before ? `<span class="result-before">${r.before}</span>` : ''}
-            ${r.after}
+            ${r.before ? `<span class="result-before">${r.before}</span>` : ''}${r.after}
           </p>
         </div>
       `).join('')}
@@ -77,10 +81,10 @@ function renderResults(results) {
 }
 
 function renderProject(p, i) {
-  const wrapper = document.createElement('div');
-  if (i > 0) wrapper.innerHTML = '<hr class="divider">';
+  const wrap = document.createElement('div');
+  if (i > 0) wrap.innerHTML = '<hr class="divider">';
 
-  const header = `
+  let html = `
     <div class="project">
       <div class="project-header">
         <h2 class="project-title">${p.title}</h2>
@@ -89,19 +93,16 @@ function renderProject(p, i) {
       <p class="project-subtitle">${p.subtitle}</p>
       <p class="block-label">Situation</p>
       <p class="block-text">${p.situation}</p>
+      <p class="block-label">Analysis & Action</p>
   `;
 
-  let body = '';
-
   if (p.steps && p.steps.length) {
-    body += `<p class="block-label">Analysis & Action</p><div class="steps">`;
+    html += `<div class="steps">`;
     p.steps.forEach(s => {
-      body += `
+      html += `
         <div class="step-item">
-          <div class="step-label-col">
-            <span class="step-badge">${s.step}</span>
-          </div>
-          <div class="step-body">
+          <div><span class="step-badge">${s.step}</span></div>
+          <div>
             <p class="step-title">${s.title}</p>
             <p class="step-content">${hl(s.content, s.codes)}</p>
             ${s.result ? `<p class="step-result">→ ${s.result}</p>` : ''}
@@ -109,11 +110,10 @@ function renderProject(p, i) {
         </div>
       `;
     });
-    body += `</div>`;
+    html += `</div>`;
   } else if (p.findings && p.findings.length) {
-    body += `<p class="block-label">Analysis & Action</p>`;
     p.findings.forEach(f => {
-      body += `
+      html += `
         <div class="finding">
           <p class="finding-title">${f.title}</p>
           <p>${hl(f.content, f.codes)}</p>
@@ -122,17 +122,15 @@ function renderProject(p, i) {
     });
   }
 
-  body += `
+  html += `
     <p class="block-label" style="margin-top:1.4rem;">Result</p>
     ${renderResults(p.results)}
-    <div class="tags">
-      ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-    </div>
+    <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
     </div>
   `;
 
-  wrapper.innerHTML += header + body;
-  return wrapper;
+  wrap.innerHTML += html;
+  return wrap;
 }
 
 function render(data) {
@@ -142,9 +140,10 @@ function render(data) {
   document.getElementById('nav-name').textContent = meta.github.replace('https://github.com/', '');
   document.getElementById('footer-text').textContent = meta.name + ' · ' + meta.email;
 
+  // Hero
   document.getElementById('hero').innerHTML = `
     <p class="hero-label">${meta.role}</p>
-    <h1>${meta.headline.replace(',', ',<br>')}</h1>
+    <h1>${meta.headline}<br><em>${meta.headline_em}</em></h1>
     <p class="hero-desc">${meta.description}</p>
     <div class="hero-links">
       <a href="mailto:${meta.email}">${meta.email}</a>
@@ -152,37 +151,32 @@ function render(data) {
     </div>
   `;
 
+  // Projects
   const projectsEl = document.getElementById('projects-list');
-  projects.forEach((p, i) => {
-    projectsEl.appendChild(renderProject(p, i));
-  });
+  projects.forEach((p, i) => projectsEl.appendChild(renderProject(p, i)));
 
-  const expEl = document.getElementById('experience-list');
-  experience.forEach(e => {
-    const div = document.createElement('div');
-    div.className = 'exp-item';
-    div.innerHTML = `
-      <div class="exp-header">
-        <span class="exp-company">${e.company}</span>
-        <span class="exp-period">${e.period}</span>
+  // Sidebar — Skills
+  const skillsEl = document.getElementById('skills-sidebar');
+  skillsEl.innerHTML = `<p class="sidebar-label">Skills</p>` +
+    skills.map(s => `
+      <div class="skill-group">
+        <p class="skill-group-label">${s.group}</p>
+        <div class="skill-pills">
+          ${s.items.map(item => `<span class="skill-pill">${item}</span>`).join('')}
+        </div>
       </div>
-      <p class="exp-role">${e.role}</p>
-      <ul class="exp-bullets">
-        ${e.bullets.map(b => `<li>${b}</li>`).join('')}
-      </ul>
-    `;
-    expEl.appendChild(div);
-  });
+    `).join('');
 
-  const skillsEl = document.getElementById('skills-grid');
-  skills.forEach(s => {
-    const div = document.createElement('div');
-    div.innerHTML = `
-      <p class="skill-group-label">${s.group}</p>
-      <p class="skill-list">${s.items.join('<br>')}</p>
-    `;
-    skillsEl.appendChild(div);
-  });
+  // Sidebar — Experience
+  const expEl = document.getElementById('experience-sidebar');
+  expEl.innerHTML = `<div class="sidebar-exp"><p class="sidebar-label">Experience</p>` +
+    experience.map(e => `
+      <div class="exp-item">
+        <p class="exp-company">${e.company}</p>
+        <p class="exp-role">${e.role}</p>
+        <p class="exp-period">${e.period}</p>
+      </div>
+    `).join('') + `</div>`;
 }
 </script>
 </body>
