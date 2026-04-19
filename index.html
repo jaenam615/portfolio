@@ -74,7 +74,7 @@ function hl(text, codes) {
   let out = text;
   codes.forEach(c => {
     const esc = c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    out = out.replace(new RegExp(esc, 'g'), `<code>${c}</code>`);
+    out = out.replace(new RegExp(`(?<!\\w)${esc}(?!\\w)`, 'g'), `<code>${c}</code>`);
   });
   return out;
 }
