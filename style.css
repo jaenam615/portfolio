@@ -57,6 +57,13 @@ nav .inner {
   justify-content: space-between;
   align-items: center;
 }
+
+.hero {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
 .nav-name {
   font-family: 'DM Mono', monospace;
   font-size: 13px;
