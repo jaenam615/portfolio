@@ -387,7 +387,8 @@ nav .inner {
   min-height: 1em;
 }
 .mermaid-figure .mermaid svg {
-  max-width: 100%;
+  max-width: 420px;
+  width: 100%;
   height: auto;
 }
 .mermaid-figure figcaption {

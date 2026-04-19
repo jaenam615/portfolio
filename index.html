@@ -66,7 +66,14 @@ async function loadDiagramSources(data) {
 }
 
 if (window.mermaid) {
-  mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'neutral',
+    securityLevel: 'loose',
+    flowchart: { nodeSpacing: 30, rankSpacing: 30, padding: 8, useMaxWidth: true },
+    stateDiagram: { nodeSpacing: 30, rankSpacing: 30, useMaxWidth: true },
+    themeVariables: { fontSize: '13px' }
+  });
 }
 
 fetch('data.json')
