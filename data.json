@@ -24,7 +24,7 @@
     },
     {
       "group": "Backend",
-      "items": ["Spring Boot", "PostgreSQL", "MySQL", "Redis"]
+      "items": ["Spring Boot", "RDBMS", "Redis"]
     },
     {
       "group": "Infra",
@@ -209,7 +209,7 @@
         { "label": "인프라 변경", "before": "콘솔 수동", "after": "PR 리뷰 + auto apply" },
         { "label": "외부 RDS 접근", "before": null, "after": "VPC Peering (다중 리전)" }
       ],
-      "tags": ["Terraform", "AWS", "VPC Peering", "Glue", "Github Actions"]
+      "tags": ["Terraform", "AWS", "VPC Peering", "Github Actions"]
     },
     {
       "id": "doc-change-tracker",
