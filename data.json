@@ -39,12 +39,20 @@
       "year": "2025",
       "subtitle": "광고 비용 데이터 파이프라인 전면 재설계",
       "situation": "고객 수 증가에 따라 광고 비용 ETL 파이프라인이 4시간 SLA를 초과해 4시간 30분에 도달하며 확장성 한계에 부딪혔습니다. 단순 인프라 증설로는 해결되지 않는 구조적 문제가 있었습니다. Airflow Gantt Chart 분석을 통해 유독 시간이 오래 소요되는 세 구간을 식별했습니다: ① 환율 적용 쿼리, ② Transform 메시지 처리, ③ Data Acquisition.",
+      "situation_images": [
+        { "src": "images/etl-bottleneck/totaltime-before.webp", "caption": "작업 전 전체 파이프라인 실행 시간" }
+      ],
       "steps": [
         {
           "step": "1단계",
           "title": "환율 쿼리 — self-join 안티패턴 제거",
           "content": "환율 데이터의 최신성을 확인하기 위해 사용되던 self-join 안티패턴이 원인이었습니다. 동일 테이블을 두 번 스캔하며 Disk I/O가 급증하고 있었습니다. Snowflake Warehouse 수직 확장만으로는 약 2% 수준의 미미한 개선만 가능했는데, 이는 근본 원인이 I/O 패턴 자체에 있었기 때문입니다. PARTITION BY + ROW_NUMBER 윈도우 함수로 대체해 CPU-bound 연산으로 전환했습니다. 수직 확장 시 처리 시간이 선형적으로 감소하는 구조도 함께 확보했습니다.",
           "codes": ["self-join", "PARTITION BY + ROW_NUMBER"],
+          "images": [
+            { "src": "images/etl-bottleneck/queryprofile-before.webp", "caption": "작업 전 Snowflake Query Profile (self-join I/O 패턴)" },
+            { "src": "images/etl-bottleneck/currency-before.webp", "caption": "작업 전 환율 쿼리 실행 시간" },
+            { "src": "images/etl-bottleneck/currency-after.webp", "caption": "작업 후 환율 쿼리 실행 시간" }
+          ],
           "result": "87분 → 12분 (86% 단축)"
         },
         {
@@ -180,9 +188,7 @@
           "codes": [],
           "images": [
             { "src": "images/doc-change-tracker/messages-before.webp", "caption": "작업 전 메시지: 220개" },
-            { "src": "images/doc-change-tracker/messages-after.webp", "caption": "작업 후 메시지: 48개" },
-            { "src": "images/doc-change-tracker/comments-before.webp", "caption": "작업 전 사람이 단 댓글: 9개" },
-            { "src": "images/doc-change-tracker/comments-after.webp", "caption": "작업 후 사람이 단 댓글: 66개" }
+            { "src": "images/doc-change-tracker/comments-before.webp", "caption": "작업 전 사람이 단 댓글: 9개" }
           ]
         },
         {
@@ -201,6 +207,10 @@
         { "label": "알림 감소율", "before": null, "after": "76% 감소" },
         { "label": "채널 참여율", "before": null, "after": "6배 이상 증가" },
         { "label": "타 팀 확장", "before": null, "after": "PM 등 트래킹 문서 추가 요청" }
+      ],
+      "result_images": [
+        { "src": "images/doc-change-tracker/messages-after.webp", "caption": "작업 후 메시지: 48개" },
+        { "src": "images/doc-change-tracker/comments-after.webp", "caption": "작업 후 사람이 단 댓글: 66개" }
       ],
       "tags": ["Node.js", "Github Actions", "OpenAI API"]
     },

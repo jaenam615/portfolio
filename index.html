@@ -108,6 +108,7 @@ function renderProject(p, i) {
       <p class="project-subtitle">${p.subtitle}</p>
       <p class="block-label">Situation</p>
       <p class="block-text">${p.situation}</p>
+      ${renderImages(p.situation_images)}
       <p class="block-label">Analysis & Action</p>
   `;
 
@@ -142,6 +143,7 @@ function renderProject(p, i) {
   html += `
     <p class="block-label" style="margin-top:1.4rem;">Result</p>
     ${renderResults(p.results)}
+    ${renderImages(p.result_images)}
     <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
     </div>
   `;
