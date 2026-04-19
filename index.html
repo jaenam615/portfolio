@@ -108,6 +108,23 @@ function renderMermaid(blocks) {
   `).join('');
 }
 
+function renderTables(tables) {
+  if (!tables || !tables.length) return '';
+  return tables.map(t => `
+    <figure class="table-figure">
+      <table class="data-table">
+        <thead>
+          <tr>${(t.headers || []).map(h => `<th>${h}</th>`).join('')}</tr>
+        </thead>
+        <tbody>
+          ${(t.rows || []).map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}
+        </tbody>
+      </table>
+      ${t.caption ? `<figcaption>${t.caption}</figcaption>` : ''}
+    </figure>
+  `).join('');
+}
+
 function renderImages(images) {
   if (!images || !images.length) return '';
   return `
@@ -167,6 +184,7 @@ function renderProject(p, i) {
             <p class="step-title">${s.title}</p>
             <p class="step-content">${hl(s.content, s.codes)}</p>
             ${renderMermaid(s.mermaid)}
+            ${renderTables(s.tables)}
             ${renderImages(s.images)}
             ${s.result ? `<p class="step-result">→ ${s.result}</p>` : ''}
           </div>
@@ -181,6 +199,7 @@ function renderProject(p, i) {
           <p class="finding-title">${f.title}</p>
           <p>${hl(f.content, f.codes)}</p>
           ${renderMermaid(f.mermaid)}
+          ${renderTables(f.tables)}
           ${renderImages(f.images)}
         </div>
       `;

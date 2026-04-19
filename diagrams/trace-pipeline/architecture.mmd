@@ -1,0 +1,8 @@
+flowchart TD
+    A[Monitoring S3<br/>Tempo vParquet4] --> B{Airflow DAG<br/>테넌트 라우팅}
+    B -->|수십 GB/일| C[Python Shell<br/>PyArrow 필터]
+    B -->|TB/일| D[Glue Spark<br/>분산 필터]
+    C --> E[GCS<br/>filtered parquet]
+    D --> E
+    E --> F[BQ External Table]
+    F --> G[분석가 쿼리]

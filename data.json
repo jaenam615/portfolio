@@ -155,26 +155,35 @@
       "company": "넛지헬스케어",
       "year": "2026",
       "subtitle": "Tempo → BigQuery 적재 구조 비교 + 테넌트별 비용 최적화",
-      "situation": "Tempo에 저장되는 trace 데이터는 2일 TTL 제약이 있어, abuse 대응 같은 장기 분석을 위해 BigQuery로 적재하는 파이프라인이 필요했습니다. 두 축(파일 기반 ETL vs OTel 직접 export)과 여러 실행 옵션(Athena·Python Shell·Spark)을 운영 부담·비용·확장성 관점에서 비교했고, Tempo vParquet4 블록 포맷 자체의 제약도 고려해야 했습니다.",
+      "situation": "Tempo의 trace 데이터는 2일 TTL 제약이 있어 abuse 대응 같은 장기 분석을 위해 BigQuery로 적재할 파이프라인이 필요했습니다. 파일 기반 ETL과 OTel 직접 export 두 축을 운영 부담·비용·확장성으로 비교했습니다.",
       "findings": [
         {
-          "title": "Tempo vParquet4 포맷 — parquet 분리 전처리",
-          "content": "Tempo가 저장하는 vParquet4 블록은 data.parquet 외에 meta.json, bloom-0, index 등 non-parquet 파일이 혼재되어 있어 Athena나 Spark가 블록 단위로 읽으면 non-parquet 파일에서 실패했습니다. data.parquet만 별도 S3로 분리 복사하는 전처리 단계를 모든 방식의 공통 출발점으로 두고, 같은 리전 cross-account egress 무료 구간을 활용해 전송 비용을 0으로 유지했습니다.",
-          "codes": ["vParquet4", "aws s3 sync"]
-        },
-        {
           "title": "Athena 기반 ETL → Airflow Python 단순화",
-          "content": "초기 설계(S3 → S3 parquet 필터 → Athena INSERT INTO → S3 endpoint 필터 → STS → GCS → BQ)는 Athena Workgroup, Glue Catalog Table 2개, STS Transfer Job 등 관리 대상 인프라가 많았고 MWAA → DE Role → Monitoring S3 cross-account IAM 체인도 복잡했습니다. PyArrow로 data.parquet을 읽어 메모리에서 필터·UNNEST한 뒤 GCS로 직접 쓰는 Airflow Python task 단일 구조로 전환하고 BQ External Table로 분석 환경에 노출해 관리 포인트와 IAM 체인을 대폭 축소했습니다. 23GB/일 규모에서도 블록당 7MB 단위 처리 + del df로 누적 메모리를 회피했고, 필요 시 PyArrow ParquetWriter streaming write로 전환 가능한 여지를 남겼습니다.",
-          "codes": ["PyArrow", "Airflow DAG", "del df", "ParquetWriter", "BQ External Table"]
+          "content": "초기안은 Athena 기반 ETL이었지만, Tempo vParquet4 블록에 data.parquet·meta.json·bloom-0·index가 혼재해 parquet 분리 전처리 단계가 필수였습니다. 같은 리전 cross-account 전송이라 비용은 0이지만, 이 단계에 Athena Workgroup·Glue Catalog Table 2개·STS Transfer Job·cross-account IAM 체인이 겹쳐 실패 지점이 너무 많다고 판단해 제외했습니다. 대신 PyArrow로 data.parquet을 읽어 메모리 필터·UNNEST 후 GCS에 직접 쓰는 Airflow Python task 단일 구조로 전환, BQ External Table로 분석 환경에 노출했습니다. 23GB/일 규모는 블록당 7MB 단위 처리 + del df로 누적 메모리를 회피했습니다.",
+          "codes": ["vParquet4", "PyArrow", "Airflow DAG", "del df", "ParquetWriter", "BQ External Table"],
+          "mermaid": [
+            { "src": "diagrams/trace-pipeline/architecture.mmd", "caption": "채택한 파이프라인 구조 — 테넌트별 실행 모드 라우팅" }
+          ]
         },
         {
           "title": "테넌트 규모별 실행 모드 차등화 — Python Shell + Spark 혼합",
-          "content": "수십 GB 규모에서는 Pandas DF가 cold start 영향을 뒤집고 Spark보다 빠르다는 점을 확인했습니다. 10 테넌트 월간 비용 비교(Python Shell 0.0625 DPU ~$2.10 / 1 DPU ~$11 / Spark 2 DPU ~$44)에서 소규모 테넌트에 Spark를 쓰는 것은 속도 이점 대비 과한 선택이었습니다. 반면 1.5TB/일 규모에서는 Python Shell 6시간 $80 vs Spark 20분 $9로 결과가 역전돼, 통일성을 포기하고 Airflow 상수(SPARK_JOB_TENANT, PYTHON_SHELL_TENANT)로 테넌트별 실행 모드를 분기하는 구조를 채택했습니다. 월 $40+ 절감과 속도 균형을 함께 확보했습니다.",
-          "codes": ["Python Shell", "Glue Spark", "SPARK_JOB_TENANT", "PYTHON_SHELL_TENANT"]
+          "content": "수십 GB 규모는 cold start 영향으로 Pandas DF가 Spark보다 빠른 반면, 1.5TB/일 테넌트는 Python Shell 6시간 $80 vs Spark 20분 $9로 결과가 뒤집혔습니다. 통일된 실행 모드로는 비용·속도 양쪽 최적화가 불가능하다고 판단해, Airflow 상수(SPARK_JOB_TENANT, PYTHON_SHELL_TENANT)로 테넌트별 분기 구조를 채택했습니다. 통일성을 포기한 대신 월 $40+ 절감과 TB급 처리 시간 단축을 함께 확보했습니다.",
+          "codes": ["Python Shell", "Glue Spark", "SPARK_JOB_TENANT", "PYTHON_SHELL_TENANT"],
+          "tables": [
+            {
+              "caption": "Glue 실행 모드별 비용 비교 (수십 GB/일 기준)",
+              "headers": ["방식", "DPU", "처리 시간", "비용/실행", "월 비용 (10 테넌트)"],
+              "rows": [
+                ["Python Shell (최소)", "0.0625", "~15분", "$0.007", "~$2.10"],
+                ["Python Shell (표준)", "1", "~5분", "$0.037", "~$11"],
+                ["Spark", "2 (최소)", "~10분", "$0.15", "~$44"]
+              ]
+            }
+          ]
         },
         {
           "title": "OTel/Alloy direct export — 기술 가능성 vs 운영 현실성",
-          "content": "각 백엔드에 배포된 Alloy(OTel Collector)에 BigQuery Exporter를 붙여 BQ로 직접 streaming insert하는 방식도 기술적으로는 가능했습니다. 제외 근거: ① 필터 config가 각 테넌트 Alloy에 위치해 DE가 독립적으로 필터 변경 불가, 변경마다 Alloy 재배포 필요, ② 엔드포인트·프로젝트 추가마다 백엔드 팀 협조 필요로 확장 속도 저하, ③ Alloy가 백엔드 서버에 상주해 CPU 경합으로 응답속도 영향 가능(SRE 팀 우려), ④ 각 테넌트에 GCP 인증정보 배포로 보안 표면 확대, ⑤ BQ Streaming Insert + Storage 비용 증가. 기술적 가능성과 운영 현실성을 분리해 후자를 우선했습니다.",
+          "content": "각 백엔드의 Alloy(OTel Collector)에 BigQuery Exporter를 붙이는 방식도 기술적으로는 가능했지만, 운영 현실성을 우선해 제외했습니다: ① 필터 config가 테넌트 Alloy에 있어 DE가 독립 변경 불가, ② 엔드포인트 추가마다 백엔드 팀 협조 필요, ③ Alloy가 백엔드 서버 CPU 경합으로 응답속도 영향 가능(SRE 우려), ④ 테넌트에 GCP 인증정보 배포 → 보안 표면 확대, ⑤ BQ Streaming Insert + Storage 비용 증가.",
           "codes": ["Alloy", "OTel Collector", "BQ Streaming Insert"]
         }
       ],

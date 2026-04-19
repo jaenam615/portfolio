@@ -371,6 +371,52 @@ nav .inner {
   line-height: 1.8;
 }
 
+/* Data tables */
+.table-figure {
+  margin: 0.9rem 0 0.4rem;
+  overflow-x: auto;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 12px;
+}
+.data-table th {
+  background: var(--step-bg);
+  text-align: left;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.data-table td {
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--faint);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+}
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+.table-figure figcaption {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-top: 0.5rem;
+  padding: 0 0.2rem;
+  line-height: 1.5;
+}
+
 /* Mermaid diagrams */
 .mermaid-figure {
   margin: 0.9rem 0 0.4rem;
