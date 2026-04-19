@@ -1,0 +1,6 @@
+stateDiagram-v2
+    [*] --> CLOSED
+    CLOSED --> OPEN: 실패율 50% 초과
+    OPEN --> HALF_OPEN: 30초 경과
+    HALF_OPEN --> CLOSED: 시험 3회 성공
+    HALF_OPEN --> OPEN: 시험 요청 실패

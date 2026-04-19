@@ -1,0 +1,10 @@
+flowchart TD
+    A[대용량 파일] --> B["Downloader + Splitter"]
+    B --> C1[chunk_1.csv]
+    B --> C2[chunk_2.csv]
+    C1 --> T1[Transform Task 1]
+    C2 --> T2[Transform Task 2]
+    T1 --> D1[Temp Table 1]
+    T2 --> D2[Temp Table 2]
+    D1 --> M[Merge to Final Table]
+    D2 --> M

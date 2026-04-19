@@ -371,31 +371,33 @@ nav .inner {
   line-height: 1.8;
 }
 
-/* ASCII diagrams */
-.ascii-figure {
+/* Mermaid diagrams */
+.mermaid-figure {
   margin: 0.9rem 0 0.4rem;
-}
-.ascii-block {
-  font-family: 'Nanum Gothic Coding', Menlo, 'SF Mono', Consolas, monospace;
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--text);
+  padding: 1.2rem 1rem 1rem;
   background: var(--step-bg);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 1rem 1.2rem;
   overflow-x: auto;
-  white-space: pre;
-  margin: 0;
+  text-align: center;
 }
-.ascii-figure figcaption {
+.mermaid-figure .mermaid {
+  display: inline-block;
+  text-align: left;
+  min-height: 1em;
+}
+.mermaid-figure .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+.mermaid-figure figcaption {
   font-family: 'DM Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.04em;
   color: var(--muted);
-  margin-top: 0.4rem;
-  padding: 0 0.2rem;
+  margin-top: 0.8rem;
   line-height: 1.5;
+  text-align: center;
 }
 
 /* Figures */

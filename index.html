@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>포트폴리오</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500&family=Nanum+Gothic+Coding:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 </head>
 <body>
 
@@ -49,25 +50,30 @@
 </footer>
 
 <script>
-async function loadAsciiSources(data) {
+async function loadDiagramSources(data) {
   const tasks = [];
-  const collect = (arr) => (arr || []).forEach(a => {
-    if (a.src && a.content == null) {
-      tasks.push(fetch(a.src).then(r => r.text()).then(t => { a.content = t.replace(/\n$/, ''); }));
+  const collect = (arr) => (arr || []).forEach(d => {
+    if (d.src && d.content == null) {
+      tasks.push(fetch(d.src).then(r => r.text()).then(t => { d.content = t.trim(); }));
     }
   });
   (data.projects || []).forEach(p => {
-    (p.steps || []).forEach(s => collect(s.ascii));
-    (p.findings || []).forEach(f => collect(f.ascii));
+    (p.steps || []).forEach(s => collect(s.mermaid));
+    (p.findings || []).forEach(f => collect(f.mermaid));
   });
   await Promise.all(tasks);
   return data;
 }
 
+if (window.mermaid) {
+  mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+}
+
 fetch('data.json')
   .then(r => r.json())
-  .then(loadAsciiSources)
-  .then(render);
+  .then(loadDiagramSources)
+  .then(render)
+  .then(() => { if (window.mermaid) mermaid.run({ querySelector: '.mermaid' }); });
 
 function hl(text, codes) {
   if (!codes || !codes.length) return text;
@@ -79,11 +85,11 @@ function hl(text, codes) {
   return out;
 }
 
-function renderAscii(blocks) {
+function renderMermaid(blocks) {
   if (!blocks || !blocks.length) return '';
   return blocks.map(b => `
-    <figure class="ascii-figure">
-      <pre class="ascii-block">${b.content}</pre>
+    <figure class="mermaid-figure">
+      <div class="mermaid">${b.content}</div>
       ${b.caption ? `<figcaption>${b.caption}</figcaption>` : ''}
     </figure>
   `).join('');
@@ -147,7 +153,7 @@ function renderProject(p, i) {
           <div>
             <p class="step-title">${s.title}</p>
             <p class="step-content">${hl(s.content, s.codes)}</p>
-            ${renderAscii(s.ascii)}
+            ${renderMermaid(s.mermaid)}
             ${renderImages(s.images)}
             ${s.result ? `<p class="step-result">→ ${s.result}</p>` : ''}
           </div>
@@ -161,7 +167,7 @@ function renderProject(p, i) {
         <div class="finding">
           <p class="finding-title">${f.title}</p>
           <p>${hl(f.content, f.codes)}</p>
-          ${renderAscii(f.ascii)}
+          ${renderMermaid(f.mermaid)}
           ${renderImages(f.images)}
         </div>
       `;
