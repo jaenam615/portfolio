@@ -2,7 +2,7 @@
   "meta": {
     "name": "남재희",
     "role": "Data-intensive Backend Engineer",
-    "headline": "데이터에 강한,",
+    "headline": "데이터에 강한",
     "headline_em": "백엔드 엔지니어입니다.",
     "description": "대용량 데이터 처리부터 백엔드 시스템 설계까지, 데이터가 흐르는 모든 구간에서 문제를 찾고 해결합니다. Spark, Airflow, Kotlin/Spring을 중심으로 분산 처리와 서비스 안정성을 함께 고려하는 엔지니어입니다.",
     "email": "jaenam2060@gmail.com",
@@ -69,7 +69,7 @@
         { "label": "전체 파이프라인", "before": "4h 34m", "after": "1h 50m" },
         { "label": "운영 리소스", "before": null, "after": "45% 절감" }
       ],
-      "tags": ["Airflow", "Python", "Snowflake", "MapReduce", "Window Function", "AWS ECS"]
+      "tags": ["Airflow", "Python", "Snowflake", "MapReduce", "AWS ECS"]
     },
     {
       "id": "spark-lineage",
@@ -100,7 +100,7 @@
         { "label": "Driver task 추적", "before": "29,360", "after": "~18" },
         { "label": "MySQL 읽기", "before": "2회/파티션", "after": "1회" }
       ],
-      "tags": ["Spark", "AWS Glue", "Lazy Evaluation", "Driver GC", "Python"]
+      "tags": ["Spark", "AWS Glue", "Python"]
     },
     {
       "id": "llm-chat",
@@ -164,7 +164,7 @@
         { "label": "분석 환경", "before": null, "after": "external table + dbt" },
         { "label": "필터 유연성", "before": null, "after": "설정 파일 분리" }
       ],
-      "tags": ["Spark", "S3", "GCS", "dbt", "Parquet"]
+      "tags": ["Airflow", "Python", "AWS Glue", "Spark", "S3", "GCS", "dbt"]
     },
     {
       "id": "doc-change-tracker",
@@ -195,7 +195,7 @@
         { "label": "알림 감소율", "before": null, "after": "76% 감소" },
         { "label": "채널 참여율", "before": null, "after": "6배 증가" }
       ],
-      "tags": ["Node.js", "Github Actions", "OpenAI API", "크롤링"]
+      "tags": ["Node.js", "Github Actions", "OpenAI API"]
     },
     {
       "id": "motion-beat",
