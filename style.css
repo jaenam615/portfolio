@@ -203,6 +203,33 @@ nav .inner {
   white-space: nowrap;
 }
 
+/* Sidebar ToC */
+.toc {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 2.5rem;
+}
+.toc-item {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border-left: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  line-height: 1.5;
+}
+.toc-item:hover {
+  color: var(--text);
+  background: var(--faint);
+}
+.toc-item.active {
+  color: var(--text);
+  border-left-color: var(--text);
+  background: var(--faint);
+  font-weight: 500;
+}
+
 /* Sidebar experience */
 .sidebar-exp { margin-top: 2.5rem; }
 .exp-item {
