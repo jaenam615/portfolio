@@ -155,27 +155,22 @@
       "company": "개인 프로젝트",
       "year": "2026",
       "subtitle": "Kotlin/Spring Boot 기반 LLM 배치 평가 파이프라인",
-      "situation": "채용 공고와 지원자 이력서를 LLM으로 비교 평가해 통과/보류/탈락 판정과 근거를 산출하는 백엔드 사이드 프로젝트입니다. 기능을 늘리기보다 외부 의존성(LLM·스토리지·파서·알림)을 경계 뒤로 밀어내고, 완료 푸시가 없는 비동기 외부 작업을 어떻게 안전하게 다루는지에 집중했습니다.",
+      "situation": "채용 공고와 지원자 이력서를 LLM으로 비교 평가해 통과/보류/탈락 판정과 근거를 산출하는 사이드 프로젝트입니다. 대량의 LLM 호출을 비용 효율적으로 다루는 것과, 완료 시점을 알 수 없는 외부 비동기 작업을 장애 없이 수거하는 것이 핵심 과제였습니다.",
       "findings": [
         {
-          "title": "비동기 배치 — 블로킹 폴링 → 제출/수거 분리",
-          "content": "이력서 평가에 Anthropic Message Batches API(동기 호출 대비 토큰 50% 절감)를 사용했는데, 초안은 제출 후 그 자리에서 폴링하는 블로킹 루프였습니다. 그러나 Batches API는 완료 푸시(webhook)가 없어 폴링이 불가피하고, SLA가 최대 24시간이라 블로킹 루프는 스케줄러 스레드를 장시간 점유하고 프로세스 재시작 시 배치 핸들이 메모리에서 유실돼 배치 고아·중복 제출(비용 2배) 위험이 있었습니다. 제출(provider_batch_id를 DB에 영속화하고 즉시 리턴)과 수거(별도 스케줄 잡이 RUNNING 배치를 주기적으로 1회씩 폴링)를 분리해 논블로킹·재시작 안전 구조로 재설계했습니다. 폴링 주기는 비용이 아니라(상태 조회는 토큰 과금이 없는 메타데이터 GET) 완료 감지 지연 vs rate-limit 트레이드오프라고 판단해 매 분 대신 5분으로 두고, 단일 in-flight 배치 불변식으로 중복 제출과 실패 시 롤백을 단순화했습니다.",
-          "codes": ["Message Batches API", "provider_batch_id", "@Scheduled", "reconciliation"]
+          "title": "비동기 배치 수거 — 블로킹 폴링을 걷어내다",
+          "content": "대량 평가를 동기로 호출하면 비용과 rate limit이 곧바로 병목이라, 토큰을 50% 절감하는 Anthropic Message Batches API를 택했습니다. 첫 구현은 제출 직후 같은 스레드에서 완료까지 폴링하는 블로킹 루프였는데, Batches는 완료 webhook이 없어 폴링이 불가피한 데다 SLA가 최대 24시간이라, 스케줄러 스레드를 최대 하루 점유하고 재시작 시 메모리에 있던 배치 핸들이 사라져 제출한 배치가 고아가 되고 다음 실행이 같은 이력서를 재제출(비용 2배)하는 문제가 있었습니다. 제출과 수거를 별도 스케줄 잡으로 분리하고 배치 핸들(provider_batch_id)을 DB에 영속화해 재시작에도 살아남게 했고, 진행 중 배치가 있으면 제출을 건너뛰는 단일 in-flight 불변식과 25시간 stale 가드(실패 처리 후 재시도 롤백)를 더했습니다. 수거 주기는 '자주 폴링하면 비싸지 않나'부터 의심했지만, 상태 조회는 토큰이 과금되는 추론 호출이 아니라 메타데이터 GET이라 비용이 아니라 '완료 감지 지연 vs rate limit' 문제로 보고 5분으로 두었습니다.",
+          "codes": ["Message Batches API", "provider_batch_id", "in-flight 불변식", "rate limit"]
         },
         {
-          "title": "LLM 출력 신뢰성 — JSON Schema 강제",
-          "content": "LLM 응답을 자유 텍스트로 받아 파싱하면 모델이 표현을 조금만 바꿔도 깨지는데, 평가 결과가 그대로 DB에 적재되는 파이프라인에서 이 취약성은 치명적이었습니다. 요청마다 output_config.format(JSON Schema)으로 응답 구조(verdict enum·점수·세부 점수·근거)를 API 레벨에서 강제해, 파서가 자연어 추측이 아니라 스키마가 보장된 JSON만 역직렬화하도록 했습니다.",
-          "codes": ["output_config.format", "JSON Schema", "verdict enum"]
+          "title": "LLM 출력을 신뢰 가능한 데이터로 — 스키마 강제",
+          "content": "LLM 응답을 자유 텍스트로 받아 파싱하면 모델이 표현을 조금만 바꿔도 깨지는데, 평가 결과가 그대로 DB에 적재되는 구조라 이 취약성이 곧 데이터 정합성 문제로 이어졌습니다. 프롬프트로 형식을 유도하는 방식은 보장이 없어, 요청마다 JSON Schema를 강제(output_config.format)해 판정(enum)·점수·세부 점수·근거 구조를 API 레벨에서 못박고 파서는 스키마에 맞는 JSON만 역직렬화하도록 했습니다.",
+          "codes": ["output_config.format", "JSON Schema"]
         },
         {
-          "title": "동시성 안전한 집계 — DB 레벨 원자 증분",
-          "content": "배치 결과 저장 시 통과/보류/탈락 카운터를 증가시키는데, 읽어서 +1 후 다시 쓰는 방식은 동시 처리 시 lost update가 발생합니다. Exposed SQL 표현식으로 read-modify-write를 단일 UPDATE 문 안에서 수행(컬럼 = 컬럼 + 1)해 애플리케이션 메모리가 아닌 DB에서 원자적으로 증분하도록 했습니다.",
-          "codes": ["SqlExpressionBuilder.plus", "intLiteral(1)", "lost update"]
-        },
-        {
-          "title": "외부 의존성 격리 — 포트 & 어댑터",
-          "content": "Tika(파싱)·S3(스토리지)·Anthropic(LLM)·Slack/Teams/Email(알림)을 도메인이 직접 알지 않도록 Out-Port 인터페이스 뒤로 분리하고, 구현은 각 어댑터 모듈에 격리했습니다. @ComponentScan 대신 모든 빈을 명시적으로 등록하고 레이어 의존 방향을 Gradle 모듈 그래프로 컴파일타임에 강제해, LLM 어댑터를 목으로 교체하거나 알림 채널을 설정 한 줄로 바꾸는 것이 가능합니다.",
-          "codes": ["Hexagonal", "Out-Port", "@ConditionalOnProperty"]
+          "title": "집계 카운터 정합성 — 애플리케이션이 아닌 DB에서 증분",
+          "content": "배치 결과를 저장하며 통과/보류/탈락 카운터를 올리는데, 값을 읽어 +1 해서 다시 쓰는 방식은 동시 저장 시 lost update가 납니다. 애플리케이션에서 락을 잡는 대신, Exposed의 SQL 표현식으로 read-modify-write를 단일 UPDATE 문(컬럼 = 컬럼 + 1) 안에서 처리해 DB가 원자성을 보장하도록 했습니다.",
+          "codes": ["lost update", "SqlExpressionBuilder.plus", "UPDATE"]
         }
       ],
       "results": [
