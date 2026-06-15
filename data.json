@@ -19,12 +19,12 @@
       "items": ["Python", "Kotlin"]
     },
     {
-      "group": "Data Engineering",
-      "items": ["Airflow", "Spark", "dbt", "Snowflake"]
-    },
-    {
       "group": "Backend",
       "items": ["Spring Boot", "RDBMS", "Redis"]
+    },
+    {
+      "group": "Data Engineering",
+      "items": ["Airflow", "dbt", "Snowflake"]
     },
     {
       "group": "Infra",
@@ -130,7 +130,7 @@
         },
         {
           "title": "데이터 정합성 — 케이스별 보호 수준 차등화",
-          "content": "케이스별 충돌 가능성과 비용을 따져 보호 강도를 차등화했습니다. 피드백 중복 생성은 애플리케이션 존재 체크 + DB unique 제약으로 이중 방어 — 밀리초 단위 동시 중복 요청이 비현실적이라 비관락 대신 DB 제약을 최후 방어선으로 삼았습니다. 피드백 상태 변경은 충돌 확률이 낮아 DB 락 비용을 피해 @Version 낙관락을 택하고, 충돌 시 409 Conflict로 클라이언트 재시도에 맡겼습니다. 스레드 30분 규칙의 race condition은 스레드가 하나 더 생겨도 채팅 저장 정합성이 깨지지 않아 별도 처리하지 않았습니다. 격리 수준도 필요한 지점에만 정확히 보호를 거는 편이 일괄 상향보다 유리하다고 판단해 PostgreSQL 기본 READ COMMITTED를 유지했습니다.",
+          "content": "케이스별 충돌 가능성과 비용을 따져 보호 강도를 차등화했습니다. 피드백 중복 생성은 애플리케이션 존재 체크 + DB unique 제약으로 이중 방어 — 밀리초 단위 동시 중복 요청이 비현실적이라 비관락 대신 DB 제약을 최후 방어선으로 삼았습니다. 피드백 상태 변경은 lost update가 정합성을 오염시킬 수 있어 보호는 필요하되, write 경합이 드물어 비관락의 블로킹 비용은 불필요하다고 판단했습니다. 거의 공짜인 @Version 낙관락으로 lost update만 막고, 드물게 발생하는 충돌은 409 Conflict로 클라이언트 재시도에 위임했습니다. 스레드 30분 규칙의 race condition은 스레드가 하나 더 생겨도 채팅 저장 정합성이 깨지지 않아 별도 처리하지 않았습니다. 격리 수준도 필요한 지점에만 정확히 보호를 거는 편이 일괄 상향보다 유리하다고 판단해 PostgreSQL 기본 READ COMMITTED를 유지했습니다.",
           "codes": ["@Version", "UniqueConstraint", "ObjectOptimisticLockingFailureException", "READ COMMITTED"]
         },
         {
