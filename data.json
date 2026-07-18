@@ -9,7 +9,8 @@
     "github": "https://github.com/jaenam615"
   },
   "experience": [
-    { "company": "넛지헬스케어", "role": "Backend Engineer Intern", "period": "2026.03 — 현재" },
+    { "company": "Sionic AI", "role": "Backend Engineer Intern", "period": "2026.05 — 현재" },
+    { "company": "넛지헬스케어", "role": "Backend Engineer Intern", "period": "2026.03 — 2026.05" },
     { "company": "AB180", "role": "Backend Engineer Intern", "period": "2025.01 — 2025.09" },
     { "company": "크래프톤 정글", "role": "수료", "period": "2024.01 — 2024.05" }
   ],
@@ -32,6 +33,75 @@
     }
   ],
   "projects": [
+    {
+      "id": "onprem-failfast",
+      "title": "온프렘 설정 신뢰성 재설계",
+      "company": "Sionic AI",
+      "year": "2026",
+      "subtitle": "설정 오류를 런타임에서 부트 타임으로 — fail-fast 재설계",
+      "situation": "storm-apis는 고객사 폐쇄망에 설치하는 온프렘이 주력 판매 형태입니다. 온프렘은 원격 로그·디버깅이 없어 우리가 고객사 런타임을 볼 수 없고, 설치 엔지니어는 '부팅 OK'만 확인하고 철수합니다. 그래서 가장 치명적인 실패 모드는 '설정 오류로 인증이 조용히 꺼진 채 정상 부팅하고, 고객사의 초기 대량 파싱 요청에서 vLLM 게이트웨이 401로 뒤늦게 무너지는' 것이었습니다. 그런데 고객사별 인증 게이트웨이를 @ConditionalOnProperty로 조건부 등록하면 env 누락·오타에도 에러 없이 빈만 조용히 미등록돼, 정확히 이 최악의 실패 모드가 만들어졌습니다. boot-time에 잡을 수 있는 설정 오류를 관측 불가능한 고객사 런타임으로 미루는 구조라 판단해 재설계를 주도했습니다.",
+      "findings": [
+        {
+          "title": "silent failure를 두 벡터로 분해해 각각 부트 타임에 차단",
+          "content": "실패 경로를 필수 env 누락(A)과 site 값 오타(B)로 나눠 각각 다른 메커니즘으로 막았습니다. A는 Properties의 requireComplete() 검증으로 누락된 env 이름을 담아 부트 타임에 실패시키고, 결과를 non-null Validated 타입으로 승격했습니다. '검증했다'는 사실을 런타임 관습이 아니라 타입으로 박제해 이후 코드는 null 체크 없이 안전합니다. B는 app.onprem.site를 OnpremSite enum에 바인딩해 잘못된 값이 조용한 default 폴백 대신 부트 타임 바인딩에서 실패하도록 했습니다.",
+          "codes": ["@ConditionalOnProperty", "requireComplete", "Validated", "OnpremSite"]
+        },
+        {
+          "title": "신규 고객사 누락을 컴파일러가 강제",
+          "content": "인증 조립 책임을 외부 모듈에서 application layer(조립 루트) 한 곳으로 이전하고, enum에 대한 exhaustive when으로 새 고객사 분기 누락 시 컴파일 에러가 나도록 했습니다. 설정 정합성을 사람의 주의력이 아니라 컴파일러·부트 시퀀스가 강제하게 만든 것이 핵심입니다.",
+          "codes": ["when", "exhaustive"]
+        },
+        {
+          "title": "포트-어댑터로 코어의 고객사 의존 제거",
+          "content": "고객사 인증 모듈(external:samsung-ena-dtsp)을 단방향 포트 의존으로 분리해, 코어 vLLM 모듈이 추상 포트(VllmAuthInterceptor)만 알고 특정 고객사 구현은 전혀 모르도록 결합도를 낮췄습니다. 인증은 outbound 인터셉터로 뒀는데, Spring Security는 inbound 요청용이라 이 게이트웨이 outbound 인증엔 부적합하다고 판단했습니다.",
+          "codes": ["VllmAuthInterceptor", "ObjectProvider", "ClientHttpRequestInterceptor"],
+          "mermaid": [
+            { "src": "diagrams/onprem-failfast/boot-flow.mmd", "caption": "부트 타임 결정 흐름 (fail-fast)" }
+          ]
+        }
+      ],
+      "results": [
+        { "label": "설정 오류 발견 시점", "before": "고객사 런타임(관측 불가)", "after": "설치/부트 타임" },
+        { "label": "인증 조용히 off된 채 납품", "before": "가능", "after": "부팅 실패로 차단" },
+        { "label": "신규 고객사 누락", "before": null, "after": "컴파일 에러" }
+      ],
+      "tags": ["Kotlin", "Spring Boot", "포트-어댑터", "fail-fast"]
+    },
+    {
+      "id": "inference-fallback",
+      "title": "LLM 추론 provider 추상화 & 무중단 Fallback",
+      "company": "Sionic AI",
+      "year": "2026",
+      "subtitle": "단일 provider 의존 제거 + provider 전환·이중화 재설계",
+      "situation": "SaaS 파싱은 문서 페이지를 이미지로 렌더해 VLM(Vertex AI / Gemini)에 보내 텍스트를 추론합니다. 이 추론 경로가 단일 provider(Vertex AI)에 고정돼 트래픽이 몰리면 429가 파싱 잡 실패로 직결됐고, 선택된 provider가 5xx·네트워크로 죽으면 재시도를 소진한 뒤 잡 전체가 대안 없이 실패했습니다. 게다가 provider 클래스가 '문서 단위 루프'와 '페이지 1장 추론' 두 책임을 이름·인터페이스 상에서 뒤섞고 있어 교체 자체를 가로막았습니다.",
+      "findings": [
+        {
+          "title": "추론 계약을 두 계층으로 분리 (포트-어댑터)",
+          "content": "'문서 1개(여러 페이지)'와 '페이지 1장'을 별도 포트(DocumentInferencerPort / PageInferencer)로 쪼갰습니다. 문서 루프·취소 확인·토큰 이벤트는 공용 오케스트레이터가 소유하고 provider는 PageInferencer 하나만 구현하도록 해, vLLM 전용이던 취소 확인을 전 provider 공통으로 확대했습니다. 이 정리로 실제로는 안 쓰이던 메서드를 강제 구현하며 남아 있던 죽은 코드 약 450줄을 제거했습니다.",
+          "codes": ["DocumentInferencerPort", "PageInferencer", "PageImageSource"]
+        },
+        {
+          "title": "provider 선택을 설정 스위치로 (전략 패턴)",
+          "content": "app.model-provider(env MODEL_PROVIDER) 값으로 어떤 어댑터 모듈을 조립할지 부트 타임에 결정하도록 하고, 새 provider OpenGateway를 추가해 SaaS 기본을 전환했습니다. 외부 API는 무변경 — 요청/응답 스펙 그대로 추론 엔진만 교체됩니다. when(modelProvider)도 exhaustive라 새 provider 누락은 컴파일 에러입니다. 전환 과정에서 OpenGateway가 thinking 기본 ON이라 reasoning_tokens가 출력 토큰을 잠식하는 문제를 /v1/responses + thinking_budget=0으로 해결하고, image_url을 data URI로 보내야 하는 것까지 와이어포맷 단위로 실측 검증했습니다.",
+          "codes": ["MODEL_PROVIDER", "@Import", "when", "thinking_budget"]
+        },
+        {
+          "title": "Fallback = Chain of Responsibility",
+          "content": "model-provider=fallback을 추가해 primary(OpenGateway)가 재시도까지 소진한 가용성 오류로 실패하면 secondary(Gemini)로 페이지 단위 자동 전환합니다. 핵심은 '언제 넘길지'를 오류 성격으로 가른 것 — 5xx·네트워크 같은 가용성 오류는 provider를 바꾸면 성공할 수 있어 전환하고, 콘텐츠 차단(CONTENT_BLOCKED)은 바꿔도 동일하게 실패하므로 전파합니다. 재시도(provider 내부 @Retryable, 400/401/403 제외)와 전환(fallback 체인)은 역할이 다른 독립 계층으로 분리했고, 전환 단위를 페이지 1장으로 둬 한 페이지 실패가 문서 전체 재시도로 번지지 않게 했습니다.",
+          "codes": ["FallbackPageInferencer", "@Retryable", "CONTENT_BLOCKED"],
+          "mermaid": [
+            { "src": "diagrams/inference-fallback/fallback-flow.mmd", "caption": "Fallback 판단 흐름" }
+          ]
+        }
+      ],
+      "results": [
+        { "label": "단일 provider 장애", "before": "잡 전체 실패", "after": "페이지 단위 secondary 승계" },
+        { "label": "provider 교체", "before": "코드·배포 변경", "after": "env 스위치" },
+        { "label": "죽은 코드", "before": null, "after": "약 450줄 제거" },
+        { "label": "취소 확인", "before": "vLLM 경로만", "after": "전 provider 공통" }
+      ],
+      "tags": ["Kotlin", "Spring Boot", "포트-어댑터", "Chain of Responsibility", "Resilience"]
+    },
     {
       "id": "etl-bottleneck",
       "title": "ETL 파이프라인 병목 해소",
