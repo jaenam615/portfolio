@@ -1,0 +1,9 @@
+flowchart TD
+    W["파싱 완료"] --> S1["오브젝트 스토리지<br/>parse_result.json"]
+    W --> S2["Redis · ParseJob.result<br/>★ 같은 내용 중복 — job당 396.5 KiB"]
+    S1 -.->|포인터는 이미 존재| S2
+    S2 --> M["maxmemory 2GB 도달<br/>noeviction → 모든 쓰기 거부"]
+    M --> U["afterInfer 의 job 상태 update 실패"]
+    U --> F["runCatching · onFailure 진입<br/>★ 실패를 기록하려고 또 Redis 쓰기"]
+    F --> X["이 예외는 아무도 안 잡는다<br/>→ 코루틴 소멸"]
+    X --> L["job 이 ACCEPTED 로 영구 잔류<br/>되살릴 주체도, 로그도 없음"]

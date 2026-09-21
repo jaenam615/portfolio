@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>포트폴리오</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -125,6 +125,17 @@ function renderTables(tables) {
   `).join('');
 }
 
+function renderSnippets(snippets) {
+  if (!snippets || !snippets.length) return '';
+  const escape = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return snippets.map(sn => `
+    <figure class="snippet-figure">
+      <pre class="snippet"><code>${escape(sn.code)}</code></pre>
+      ${sn.caption ? `<figcaption>${sn.caption}</figcaption>` : ''}
+    </figure>
+  `).join('');
+}
+
 function renderImages(images) {
   if (!images || !images.length) return '';
   return `
@@ -183,6 +194,7 @@ function renderProject(p, i) {
           <div>
             <p class="step-title">${s.title}</p>
             <p class="step-content">${hl(s.content, s.codes)}</p>
+            ${renderSnippets(s.snippets)}
             ${renderMermaid(s.mermaid)}
             ${renderTables(s.tables)}
             ${renderImages(s.images)}
@@ -198,6 +210,7 @@ function renderProject(p, i) {
         <div class="finding">
           <p class="finding-title">${f.title}</p>
           <p>${hl(f.content, f.codes)}</p>
+          ${renderSnippets(f.snippets)}
           ${renderMermaid(f.mermaid)}
           ${renderTables(f.tables)}
           ${renderImages(f.images)}
@@ -218,31 +231,32 @@ function renderProject(p, i) {
   return wrap;
 }
 
-function renderToc(projects) {
+function renderToc(groups) {
   const tocEl = document.getElementById('toc-sidebar');
+  const projects = groups.flatMap(g => g.items);
   tocEl.innerHTML = `
     <p class="sidebar-label">Projects</p>
     <nav class="toc">
-      ${projects.map(p => `
-        <a class="toc-item" href="#${p.id}" data-id="${p.id}">${p.title}</a>
+      ${groups.map(g => `
+        <p class="toc-company">${g.company}</p>
+        ${g.items.map(p => `
+          <a class="toc-item" href="#${p.id}" data-id="${p.id}">${p.hidden ? '· ' : ''}${p.title}</a>
+        `).join('')}
       `).join('')}
     </nav>
   `;
 
-  // Scroll spy
   const items = document.querySelectorAll('.toc-item');
   const projectEls = projects.map(p => document.getElementById(p.id)).filter(Boolean);
-
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        items.forEach(item => item.classList.remove('active'));
+        items.forEach(i => i.classList.remove('active'));
         const active = document.querySelector(`.toc-item[data-id="${entry.target.id}"]`);
         if (active) active.classList.add('active');
       }
     });
   }, { rootMargin: '-10% 0px -80% 0px' });
-
   projectEls.forEach(el => observer.observe(el));
 }
 
@@ -264,12 +278,31 @@ function render(data) {
     </div>
   `;
 
-  // Projects
+  // Projects — hidden 은 기본 제외. ?archive=1 이면 함께 보여준다(숨김 표시와 함께).
+  const showArchive = new URLSearchParams(location.search).has('archive');
+  const visible = projects.filter(p => showArchive || !p.hidden);
+
+  // 회사별로 묶는다. 순서는 projects 배열에 처음 등장한 순서를 따른다.
+  const groups = [];
+  visible.forEach(p => {
+    const company = p.company || '기타';
+    let g = groups.find(x => x.company === company);
+    if (!g) { g = { company, items: [] }; groups.push(g); }
+    g.items.push(p);
+  });
+
   const projectsEl = document.getElementById('projects-list');
-  projects.forEach((p, i) => projectsEl.appendChild(renderProject(p, i)));
+  let index = 0;
+  groups.forEach(g => {
+    const head = document.createElement('p');
+    head.className = 'company-label';
+    head.textContent = g.company;
+    projectsEl.appendChild(head);
+    g.items.forEach(p => projectsEl.appendChild(renderProject(p, index++)));
+  });
 
   // ToC (after projects are rendered)
-  renderToc(projects);
+  renderToc(groups);
 
   // Sidebar — Skills
   const skillsEl = document.getElementById('skills-sidebar');
