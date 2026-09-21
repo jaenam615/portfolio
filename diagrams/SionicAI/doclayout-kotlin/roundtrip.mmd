@@ -1,0 +1,18 @@
+flowchart TD
+    subgraph before["as-is · 별도 Python 서비스"]
+        direction TB
+        A0["렌더 → 파싱"] --> A1["parse_result.json 쓰기 ①"]
+        A1 --> A2["렌더 이미지 N장 업로드"]
+        A2 --> A3["POST /process → job_id"]
+        A3 --> A4["폴링 루프<br/>3초 간격 · 최대 600회"]
+        A4 --> A5["doc-layout 이 되읽기<br/>parse_result.json + 이미지 N장"]
+        A5 --> A6["GPU 2종 → 구조 조립"]
+        A6 --> A7["parse_result.json 쓰기 ②"]
+    end
+    subgraph after["to-be · 같은 JVM"]
+        direction TB
+        B0["렌더 → 파싱<br/>임시 이미지 유지"] --> B1["함수 호출 (참조 전달)"]
+        B1 --> B2["GPU 2종 → 구조 조립"]
+        B2 --> B3["이미지 업로드 · json 쓰기 1회"]
+    end
+    before ==>|"HTTP 홉·폴링·되읽기 제거 · 컨테이너 +1 → +0"| after

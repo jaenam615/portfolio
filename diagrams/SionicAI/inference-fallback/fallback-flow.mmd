@@ -1,0 +1,9 @@
+flowchart TD
+    A[페이지 1장 추론 요청] --> B[Primary provider]
+    B -- 성공 --> OK[페이지 결과 반환]
+    B -- 가용성 오류 --> C[Secondary provider]
+    B -- 콘텐츠 차단 --> STOP[전환하지 않고 전파<br/>전환해도 같은 결과]
+    C -- 성공 --> OK
+    C -- 가용성 오류 --> D[Tertiary provider]
+    D -- 성공 --> OK
+    D -- 가용성 오류 --> EX[전 엔드포인트 소진<br/>시도 순서·사유를 한 줄에 기록]

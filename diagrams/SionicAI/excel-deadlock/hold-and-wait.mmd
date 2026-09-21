@@ -1,0 +1,11 @@
+flowchart TD
+    A["facade launch<br/>Dispatchers.IO · 병렬도 max(64, 코어수)"] --> B["슬롯 점유"]
+    B --> C["PoiWorkbookReader.read<br/>non-suspend — 점유한 슬롯에서 실행"]
+    C --> D["runBlocking { }<br/>★ 슬롯을 쥔 채 블로킹"]
+    D --> E["withContext(Dispatchers.IO)<br/>★ 같은 풀에 슬롯을 새로 요구"]
+    E --> F{"64 슬롯이<br/>전부 점유자?"}
+    F -->|아니오| G["정상 진행"]
+    F -->|예| H["요구자는 슬롯을 영원히 못 받음"]
+    H --> I["요구자가 안 끝나므로<br/>점유자도 안 끝남"]
+    I -.->|hold-and-wait 순환| D
+    H --> J["CPU 0 · 메모리 고정 · 파드 생존<br/>에러 로그 0줄"]

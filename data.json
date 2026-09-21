@@ -9,27 +9,59 @@
     "github": "https://github.com/jaenam615"
   },
   "experience": [
-    { "company": "Sionic AI", "role": "Backend Engineer Intern", "period": "2026.05 — 현재" },
-    { "company": "넛지헬스케어", "role": "Backend Engineer Intern", "period": "2026.03 — 2026.05" },
-    { "company": "AB180", "role": "Backend Engineer Intern", "period": "2025.01 — 2025.09" },
-    { "company": "크래프톤 정글", "role": "수료", "period": "2024.01 — 2024.05" }
+    {
+      "company": "Sionic AI",
+      "role": "Backend Engineer Intern",
+      "period": "2026.05 — 현재"
+    },
+    {
+      "company": "넛지헬스케어",
+      "role": "Backend Engineer Intern",
+      "period": "2026.03 — 2026.05"
+    },
+    {
+      "company": "AB180",
+      "role": "Backend Engineer Intern",
+      "period": "2025.01 — 2025.09"
+    },
+    {
+      "company": "크래프톤 정글",
+      "role": "수료",
+      "period": "2024.01 — 2024.05"
+    }
   ],
   "skills": [
     {
       "group": "Languages",
-      "items": ["Python", "Kotlin"]
+      "items": [
+        "Python",
+        "Kotlin"
+      ]
     },
     {
       "group": "Backend",
-      "items": ["Spring Boot", "RDBMS", "Redis"]
+      "items": [
+        "Spring Boot",
+        "RDBMS",
+        "Redis"
+      ]
     },
     {
       "group": "Data Engineering",
-      "items": ["Airflow", "dbt", "Snowflake"]
+      "items": [
+        "Airflow",
+        "dbt",
+        "Snowflake"
+      ]
     },
     {
       "group": "Infra",
-      "items": ["AWS", "Github Actions", "Docker", "Terraform"]
+      "items": [
+        "AWS",
+        "Github Actions",
+        "Docker",
+        "Terraform"
+      ]
     }
   ],
   "projects": [
@@ -44,28 +76,777 @@
         {
           "title": "silent failure를 두 벡터로 분해해 각각 부트 타임에 차단",
           "content": "실패 경로를 필수 env 누락(A)과 site 값 오타(B)로 나눠 각각 다른 메커니즘으로 막았습니다. A는 Properties의 requireComplete() 검증으로 누락된 env 이름을 담아 부트 타임에 실패시키고, 결과를 non-null Validated 타입으로 승격했습니다. '검증했다'는 사실을 런타임 관습이 아니라 타입으로 박제해 이후 코드는 null 체크 없이 안전합니다. B는 app.onprem.site를 OnpremSite enum에 바인딩해 잘못된 값이 조용한 default 폴백 대신 부트 타임 바인딩에서 실패하도록 했습니다.",
-          "codes": ["@ConditionalOnProperty", "requireComplete", "Validated", "OnpremSite"]
+          "codes": [
+            "@ConditionalOnProperty",
+            "requireComplete",
+            "Validated",
+            "OnpremSite"
+          ]
         },
         {
           "title": "신규 고객사 누락을 컴파일러가 강제",
           "content": "인증 조립 책임을 외부 모듈에서 application layer(조립 루트) 한 곳으로 이전하고, enum에 대한 exhaustive when으로 새 고객사 분기 누락 시 컴파일 에러가 나도록 했습니다. 설정 정합성을 사람의 주의력이 아니라 컴파일러·부트 시퀀스가 강제하게 만든 것이 핵심입니다.",
-          "codes": ["when", "exhaustive"]
+          "codes": [
+            "when",
+            "exhaustive"
+          ]
         },
         {
           "title": "포트-어댑터로 코어의 고객사 의존 제거",
           "content": "고객사 인증 모듈(external:samsung-ena-dtsp)을 단방향 포트 의존으로 분리해, 코어 vLLM 모듈이 추상 포트(VllmAuthInterceptor)만 알고 특정 고객사 구현은 전혀 모르도록 결합도를 낮췄습니다. 인증은 outbound 인터셉터로 뒀는데, Spring Security는 inbound 요청용이라 이 게이트웨이 outbound 인증엔 부적합하다고 판단했습니다.",
-          "codes": ["VllmAuthInterceptor", "ObjectProvider", "ClientHttpRequestInterceptor"],
+          "codes": [
+            "VllmAuthInterceptor",
+            "ObjectProvider",
+            "ClientHttpRequestInterceptor"
+          ],
           "mermaid": [
-            { "src": "diagrams/onprem-failfast/boot-flow.mmd", "caption": "부트 타임 결정 흐름 (fail-fast)" }
+            {
+              "src": "diagrams/SionicAI/onprem-failfast/boot-flow.mmd",
+              "caption": "부트 타임 결정 흐름 (fail-fast)"
+            }
           ]
         }
       ],
       "results": [
-        { "label": "설정 오류 발견 시점", "before": "고객사 런타임(관측 불가)", "after": "설치/부트 타임" },
-        { "label": "인증 조용히 off된 채 납품", "before": "가능", "after": "부팅 실패로 차단" },
-        { "label": "신규 고객사 누락", "before": null, "after": "컴파일 에러" }
+        {
+          "label": "설정 오류 발견 시점",
+          "before": "고객사 런타임(관측 불가)",
+          "after": "설치/부트 타임"
+        },
+        {
+          "label": "인증 조용히 off된 채 납품",
+          "before": "가능",
+          "after": "부팅 실패로 차단"
+        },
+        {
+          "label": "신규 고객사 누락",
+          "before": null,
+          "after": "컴파일 에러"
+        }
       ],
-      "tags": ["Kotlin", "Spring Boot", "포트-어댑터", "fail-fast"]
+      "tags": [
+        "Kotlin",
+        "Spring Boot",
+        "포트-어댑터",
+        "fail-fast"
+      ]
+    },
+    {
+      "id": "excel-deadlock",
+      "title": "무증상 유실 69.7% 규명",
+      "company": "Sionic AI",
+      "year": "2026",
+      "subtitle": "Dispatchers.IO 자기고갈 데드락 — 유한 풀이 만든 hold-and-wait 순환",
+      "situation": "라이브에서 엑셀 파싱 요청이 응답 없이 사라졌습니다. 파드는 살아 있고 접수는 0.2초에 정상 응답했습니다. 단계별로 세어 보니 절벽이 정확히 한 곳에만 있었습니다. 수락 3,665 · 원본저장 3,665 · Job생성 3,662까지는 오차 3 이내로 정상인데, 처리 착수가 1,559로 떨어지고 정상 완료는 913건이었습니다. 그 앞도 뒤도 아니고 파이프라인 진입점 단 한 곳입니다. 착수한 건은 추론 진입까지 막힘이 없었고(preInfer start와 추론 start가 정확히 같은 1,559), 순 유실은 2,552건(69.7%)인데 에러 로그는 한 줄도 없었습니다. 관측 지표가 정상을 가리키는데 결과만 없는 상황이라, 증상이 아니라 정지의 종류를 먼저 규정해야 한다고 판단했습니다.",
+      "findings": [
+        {
+          "title": "세 지표의 조합으로 원인 후보를 소거",
+          "content": "CPU가 0에 가깝고, 메모리는 250 GiB에 고정이며, 컨테이너 재시작과 OOMKilled는 0이었습니다. GC 스래싱이면 CPU가 폭주해야 하고, 파드가 죽었다면 메모리가 0으로 복귀해야 하므로 둘 다 기각됩니다. 특히 메모리가 우상향도 하강도 아닌 평평하다는 점이 결정적이었습니다. 누수도 사망도 아니면서 아무도 놓지 않는다는 뜻이고, 남는 해석은 스레드가 park된 채 힙을 붙잡고 있다는 것뿐이었습니다. 힙을 세대별로 쪼개 보니 더 분명했습니다. heap USED는 톱니 모양으로 오르내려 GC는 정상적으로 돌고 있는데, G1 Old Gen USED가 3시간 내내 22 GiB에 평평합니다. GC가 못 돌아서가 아니라 돌아도 회수할 수 없는, 즉 여전히 도달 가능한 객체가 22 GiB 남아 있다는 뜻입니다.",
+          "codes": [
+            "CPU ≈ 0",
+            "메모리 250 GiB 고정",
+            "G1 Old Gen 22 GiB",
+            "OOMKilled 0"
+          ],
+          "tables": [
+            {
+              "headers": [
+                "가설",
+                "예상되는 관측값",
+                "실제",
+                "판정"
+              ],
+              "rows": [
+                [
+                  "GC 스래싱",
+                  "CPU 폭주",
+                  "CPU ≈ 0",
+                  "기각"
+                ],
+                [
+                  "CPU throttling",
+                  "CPU가 상한에 고착",
+                  "CPU ≈ 0",
+                  "기각"
+                ],
+                [
+                  "파드 사망·재기동",
+                  "메모리 0으로 복귀",
+                  "250 GiB 고정",
+                  "기각"
+                ],
+                [
+                  "OOM",
+                  "OOMKilled 카운트 증가",
+                  "0",
+                  "기각"
+                ]
+              ],
+              "caption": "네 가설을 모두 기각하고 남은 해석 — 스레드가 파킹된 채 힙을 붙잡고 있다"
+            }
+          ],
+          "images": [
+            {
+              "src": "images/SionicAI/excel-deadlock/cpu-zero-mem-pinned.png",
+              "caption": "04:42 이후 CPU(초록) 0, 메모리(노랑) 250 GiB 고정"
+            },
+            {
+              "src": "images/SionicAI/excel-deadlock/heap-breakdown.png",
+              "caption": "heap USED(초록)는 톱니 — GC 는 돌고 있다. 그런데 G1 Old Gen USED(파랑)는 22 GiB 에 평평하다"
+            }
+          ]
+        },
+        {
+          "title": "인프라가 아니라 엑셀 경로의 코드임을 확정",
+          "content": "특정 파드나 노드 문제일 가능성을 먼저 지웠습니다. 리플리카셋 10개 파드가 접수 341~402로 균등한데 착수는 140~206으로, 전 파드가 접수의 38~54%만 착수했습니다. 건강한 파드가 하나도 없으므로 로드밸런싱·스케줄링 문제가 아닙니다. 참고로 이전 리플리카셋의 잔여 파드 2개는 5건·6건을 받아 전부 완주했습니다. 다음으로 부하 구성이 가설과 맞는지 봤습니다. 그 시간대 로그에서 XLSX가 54.2%(10,278줄)로 압도적이고 PDF는 3,565줄이었는데, 같은 시간 같은 부하에서 PDF 경로는 데드락이 나지 않았습니다. 이 대조군으로 Redis·GPU·네트워크 같은 공통 요소를 전부 배제하고 엑셀 경로의 코드 문제로 좁혔습니다.",
+          "codes": [
+            "10개 파드 균등",
+            "착수 38~54%",
+            "XLSX 54.2%",
+            "PDF 정상"
+          ],
+          "images": [
+            {
+              "src": "images/SionicAI/excel-deadlock/per-pod.png",
+              "caption": "파드별 수락/착수/완료 — 전 파드가 같은 비율로 막혔다. 하단 2행은 이전 리플리카셋 잔여 파드로 전부 완주"
+            },
+            {
+              "src": "images/SionicAI/excel-deadlock/extension-mix.png",
+              "caption": "확장자 분포 — XLSX 10,278 vs PDF 3,565. 엑셀이 지배적인 부하였고, PDF 경로만 멀쩡했다"
+            }
+          ]
+        },
+        {
+          "title": "락이 아니라 유한 풀이 만든 데드락",
+          "content": "코드에서 순환을 특정했습니다. 병렬도 max(64, 코어수)인 Dispatchers.IO에서 슬롯을 하나 점유한 채 runBlocking으로 블로킹하고, 그 안에서 같은 풀의 슬롯을 withContext로 다시 요구하는 구조였습니다. 점유자가 64슬롯을 모두 채우면 요구자는 영원히 슬롯을 못 받고, 요구자가 끝나지 않으므로 점유자도 끝나지 않습니다. 락 순환이 아닌 hold-and-wait이라 ThreadMXBean.findDeadlockedThreads()로는 탐지되지 않고, jvm_threads_live_threads는 톰캣·netty·GC 헬퍼를 합한 플랫폼 스레드 총합이라 IO 슬롯 점유량과 무관합니다. 표준 JVM 진단으로는 보이지 않는 종류의 정지였습니다.",
+          "codes": [
+            "Dispatchers.IO",
+            "runBlocking",
+            "withContext",
+            "hold-and-wait"
+          ],
+          "mermaid": [
+            {
+              "src": "diagrams/SionicAI/excel-deadlock/hold-and-wait.mmd",
+              "caption": "슬롯을 쥔 채 같은 풀에 슬롯을 요구하는 순환"
+            }
+          ],
+          "snippets": [
+            {
+              "code": "facade launch  (Dispatchers.IO — 병렬도 max(64, 코어수), 엑셀·PDF 공유)\n └─ 슬롯 점유\n     PoiWorkbookReader.read           // non-suspend. 점유한 슬롯에서 실행\n     runBlocking {                    // ★ 슬롯을 쥔 채 블로킹\n       withContext(Dispatchers.IO) {  // ★ 같은 풀에 슬롯을 새로 요구\n         ...                          //   LLM 호출마다 또 요구\n       }\n     }",
+              "caption": "점유자가 64슬롯을 다 채우면 요구자는 영원히 슬롯을 못 받고, 요구자가 안 끝나므로 점유자도 안 끝난다"
+            }
+          ]
+        },
+        {
+          "title": "증상이 아니라 순환 자체를 제거",
+          "content": "개별 withContext를 다른 디스패처로 옮기면 당장은 풀리지만 같은 패턴이 다시 생기면 재발합니다. 데드락이 나지 않는 경로(PDF)가 이미 있었으므로, 엑셀도 같은 가상 스레드 executor를 쓰게 만들어 동시성 모델을 통일하는 쪽을 택했습니다. 순환 구조 자체가 사라지고 일관성과 재발 방지를 함께 얻습니다. 수정 후 '작업 1개 = 부모 슬롯 1개' 불변식이 성립하게 됐고, 이 불변식으로 재발을 실시간 판정하는 지표를 후속 작업으로 추가했습니다. 그 전까지는 대량으로 쏘고 완료 개수를 세는 간접적 방법밖에 없었습니다.",
+          "codes": [
+            "가상 스레드 executor",
+            "동시성 모델 통일",
+            "STM-5999"
+          ]
+        }
+      ],
+      "results": [
+        {
+          "label": "2시간 반 기준 순 유실",
+          "before": "2,552건 (69.7%)",
+          "after": "0건"
+        },
+        {
+          "label": "정지 원인",
+          "before": "지표상 정상 — 무증상",
+          "after": "hold-and-wait 순환으로 규명"
+        },
+        {
+          "label": "엑셀·PDF 동시성 모델",
+          "before": "서로 다름",
+          "after": "가상 스레드로 통일"
+        },
+        {
+          "label": "재발 판정",
+          "before": "대량 투입 후 완료 개수 집계",
+          "after": "불변식 기반 실시간 지표"
+        }
+      ],
+      "tags": [
+        "Kotlin",
+        "코루틴",
+        "장애 분석",
+        "동시성"
+      ],
+      "situation_images": [
+        {
+          "src": "images/SionicAI/excel-deadlock/funnel-timeline.png",
+          "caption": "수락(초록)은 계속 들어오는데 착수(노랑)·완료(파랑)만 먼저 0으로 내려앉는다"
+        },
+        {
+          "src": "images/SionicAI/excel-deadlock/funnel-counts.png",
+          "caption": "단계별 누적 — 수락 3,665 · 원본저장 3,665 · Job생성 3,662 · 착수 1,559 · 추론완료 916 · TA전송 913"
+        }
+      ]
+    },
+    {
+      "id": "loadtest-redis",
+      "title": "부하 테스트 도구로 찾아낸 Redis 유실",
+      "company": "Sionic AI",
+      "year": "2026",
+      "subtitle": "측정 도구를 직접 만들고, 그 도구가 찾은 무증상 유실을 제거하고, 같은 도구로 검증",
+      "situation": "비동기 job 시스템이라 기성 HTTP 부하 도구로는 측정이 안 됐습니다. 요청을 보내면 접수증만 돌아오고 실제 처리는 몇 분간 이어져서, HTTP 응답 시간을 재면 '접수가 0.2초에 끝났다'는 무의미한 값만 나옵니다. 게다가 실제 작업의 대부분은 고객이 운영하는 별도 GPU 박스에서 일어나 익스포터를 붙일 수 없었고, 본문 추론과 레이아웃 검출이 서로 다른 모델 서버라 어느 쪽이 병목인지 가르려면 둘을 함께 봐야 했습니다. 그래서 도구를 직접 설계했고, 그 도구로 돌린 첫 부하에서 수락된 job 1,115건이 ACCEPTED로 굳는 것을 발견했습니다.",
+      "findings": [
+        {
+          "title": "무엇을 측정할지부터 정의한 4층 관측",
+          "content": "클라이언트(접수→완료 p50/p95/p99), 애플리케이션(힙·GC·구세대 승격률·진행 중 작업 수), 추론 서버 2대(대기 큐·KV 점유·선점·TTFT/TPOT/ITL), 인프라(디스크·아이노드·Redis·오브젝트 스토리지)로 나눠 각 층이 답할 질문을 먼저 적었습니다. 저장 경로와 조회 경로는 부하 성격이 달라(업로드+GPU 추론 vs 대용량 응답 직렬화) 단계를 분리하고 사이에 60초 간격을 뒀습니다. GPU 박스에 익스포터를 못 붙이므로 스크립트가 /metrics를 직접 폴링하고 시작·종료 스냅샷의 차분으로 계산하게 했습니다. 이 방식이면 박스의 과거 누적분이 섞이지 않고 그 부하 구간만의 값이 나옵니다. Prometheus의 histogram_quantile과 같은 선형보간을 버킷 차분에 적용해 TTFT·TPOT·ITL을 뽑았습니다.",
+          "codes": [
+            "histogram_quantile",
+            "버킷 차분",
+            "TTFT/TPOT/ITL",
+            "cache_config_info"
+          ]
+        },
+        {
+          "title": "도구 자체의 결함 세 건 — 측정값을 틀리게 만드는 쪽",
+          "content": "vLLM은 엔진마다 같은 계열을 별도 시계열로 내는데 초기 구현이 첫 시계열만 집고 있었습니다. 게이지는 절반이 되고 히스토그램은 같은 le 버킷이 덮어써져 분위수가 뒤틀립니다. 문서당 페이지 수가 실행마다 일치하는지로 교차검증했습니다(300건 14.07, 120건 14.10). 같은 파일을 쓰니 이 비율은 같아야 합니다. 수정은 라벨 기준 합산이되 KV 점유율 같은 비율 지표는 합이 아니라 평균으로 분리했습니다(합산하면 198%가 됩니다). 둘째로 프록시가 파이썬 기본 User-Agent만 403으로 막고 있었는데, curl로는 200이 와서 '팟이 죽었나'로 오진했습니다. UA만 바꿔 실험해 확정했습니다. 셋째로 예외를 전부 삼켜 502·403·DNS 실패·타임아웃이 같은 결과였던 것이 둘째 진단이 오래 걸린 직접적 이유였습니다. 마지막 실패 사유를 기록하게 바꿨습니다.",
+          "codes": [
+            "engine 라벨 합산",
+            "sum vs avg",
+            "User-Agent 403",
+            "실패 사유 보존"
+          ],
+          "snippets": [
+            {
+              "code": "def _g(snap, name, agg=\"sum\"):\n    vals = [v for _, v in xs]                    # 엔진별 시계열 전부\n    return sum(vals)/len(vals) if agg == \"avg\" else sum(vals)\n    #  게이지·카운터는 합산, 비율 지표는 평균\n    #  KV 점유율을 합산하면 198% 가 된다",
+              "caption": "엔진 2개 구성에서 첫 시계열만 읽던 것을 라벨 기준 합산으로. 합과 평균을 분리한 것이 핵심"
+            }
+          ]
+        },
+        {
+          "title": "리포트가 스스로 신뢰도를 밝히게",
+          "content": "수집에 구멍이 있으면 최댓값이 실제보다 낮게 나오고, 이걸 숨기면 잘못된 안심을 줍니다. 표본 수가 기대치에 못 미치거나 항목이 비면 리포트가 그 사실을 함께 출력하도록 했습니다. '값이 없다'와 '못 물어봤다'는 다른 문제입니다. 서버 KV 용량도 매 실행마다 리포트에 박아, 하드웨어가 바뀌면 두 실행이 애초에 비교 대상이 아님이 드러나게 했습니다.",
+          "codes": [
+            "표본 수 명시",
+            "측정 실패 구분",
+            "용량 기록"
+          ]
+        },
+        {
+          "title": "도구가 찾은 것 — 장애 대응 코드가 장애 원인과 같은 자원에 의존",
+          "content": "job 1,115건이 로그 한 줄 없이 ACCEPTED로 굳은 원인을 지표 비율로 좁혔습니다. 아웃박스 배송 실패는 30건인데 적재 실패가 6,440건이었습니다. 외부 전송이 깨진 게 아니라 Redis에 넣는 것 자체가 깨지고 있다는 뜻이고, TTL·최대 길이 없는 큐가 Redis를 채운 것이 원인이었습니다. 가장 위험한 지점은 포화 자체가 아니라 실패 처리기였습니다. job 상태 update가 실패해 onFailure로 들어가면 거기서 또 같은 Redis에 쓰고, 그 예외는 아무도 잡지 않아 코루틴이 죽습니다. 그러면 job을 종료 상태로 바꿀 주체가 사라지고 흔적도 안 남습니다. 실패 처리기 보호, 큐 상한(LTRIM), 잔류 job 리퍼로 세 겹을 막았습니다.",
+          "codes": [
+            "outbox_published_failed_total",
+            "runCatching/onFailure",
+            "LTRIM",
+            "리퍼"
+          ],
+          "mermaid": [
+            {
+              "src": "diagrams/SionicAI/loadtest-redis/silent-loss-chain.mmd",
+              "caption": "중복 저장에서 무증상 유실까지의 인과 사슬"
+            }
+          ],
+          "snippets": [
+            {
+              "code": "runCatching {\n    parseJobRepository.update(...)   // ① Redis 쓰기 실패\n}.onFailure {\n    parseJobRepository.update(...)   // ② 실패를 기록하려고 또 Redis 쓰기 → 또 실패\n                                     //    이 예외는 아무도 안 잡는다 → 코루틴 소멸\n}",
+              "caption": "장애 대응 코드가 장애 원인과 같은 자원에 의존하면, 장애 시 그 코드도 함께 죽는다"
+            }
+          ],
+          "tables": [
+            {
+              "headers": [
+                "지표",
+                "값",
+                "읽는 법"
+              ],
+              "rows": [
+                [
+                  "outbox_published_total",
+                  "23,838",
+                  ""
+                ],
+                [
+                  "outbox_delivered_total",
+                  "10,932",
+                  ""
+                ],
+                [
+                  "outbox_delivery_failed_total",
+                  "30",
+                  "외부 전송(TA HTTP POST) 실패"
+                ],
+                [
+                  "outbox_published_failed_total",
+                  "6,440",
+                  "Redis 적재 자체가 실패"
+                ],
+                [
+                  "last_terminated_reason",
+                  "OOMKilled (파드 4개 전부)",
+                  ""
+                ]
+              ],
+              "caption": "배송 실패 30 대 적재 실패 6,440 — 문제는 소비자가 아니라 생산 쪽이라는 것을 이 비율이 결정했다"
+            }
+          ]
+        },
+        {
+          "title": "경로를 막은 뒤 원인을 제거 — 최적화가 아니라 중복 제거",
+          "content": "위 작업은 유실 경로를 막았을 뿐 Redis가 차는 원인은 남아 있었습니다. 파싱 결과가 오브젝트 스토리지와 Redis 양쪽에 저장되고 있었고, 포인터는 이미 존재했습니다. 실측해 보니 job 1건당 Redis 점유가 396.5 KiB로 원본 파일 평균(280 KB)보다 컸습니다. 마크다운 본문이 무압축 JSON으로 들어가기 때문입니다. Redis는 상태·메타데이터만 들고 본문은 오브젝트 스토리지 한 곳에만 두도록 바꾼 뒤, 같은 절차·같은 인자로 다시 재서 job 1건당 1.01 KiB, 393배 감소를 확인했습니다. 문서 크기와 무관하게 일정해졌다는 점이 더 중요합니다. 그리고 가장 중요한 발견은 평균이 아니라 꼬리에 있었습니다. mixed 평균으로 계산한 2GB 도달 시점은 5,300건이지만, 실제로 결과 본문이 21,201,557자(응답 50.86 MB)인 파일 하나는 그 job 하나가 Redis 58.7 MB를 차지합니다. 그런 파일이 섞이면 35건에 상한에 닿습니다. noeviction 정책이라 그 순간부터 모든 job 쓰기가 거부됩니다. 장애가 왜 났는지가 여기서 설명됐습니다 — 평균이 아니라 꼬리가 원인이었습니다.",
+          "codes": [
+            "396.5 KiB → 1.01 KiB",
+            "393배",
+            "꼬리 35건",
+            "noeviction"
+          ],
+          "tables": [
+            {
+              "headers": [
+                "",
+                "before",
+                "after"
+              ],
+              "rows": [
+                [
+                  "job 1건당",
+                  "396.5 KiB",
+                  "1.01 KiB"
+                ],
+                [
+                  "500건 총합",
+                  "193.6 MiB",
+                  "504 KiB"
+                ],
+                [
+                  "이 파일 1건 (응답 50.86 MB)",
+                  "58.7 MB",
+                  "약 1 KB"
+                ],
+                [
+                  "2 GB 도달 (mixed 평균)",
+                  "약 5,300건",
+                  "약 208만 건"
+                ],
+                [
+                  "2 GB 도달 (꼬리 포함)",
+                  "약 35건",
+                  "변화 없음"
+                ]
+              ],
+              "caption": "평균만 재고 끝냈다면 결과가 20 MB급인 구간을 통째로 놓쳤다"
+            }
+          ],
+          "images": [
+            {
+              "src": "images/SionicAI/loadtest-redis/heap-before.jpg",
+              "caption": "before — mixed 500건 / 동시 20. JVM Heap max 9.41 GiB"
+            },
+            {
+              "src": "images/SionicAI/loadtest-redis/heap-after.jpg",
+              "caption": "after — 같은 절차·같은 인자. max 8.71 GiB. 본문을 스토리지로 옮겨 조회마다 fetch가 늘어도 힙이 나빠지지 않음을 확인"
+            }
+          ]
+        },
+        {
+          "title": "대가를 같이 재고, 감당 가능하다고 판정한 근거",
+          "content": "Redis(메모리)에서 오브젝트 스토리지(네트워크)로 옮기면 조회가 느려집니다. 이득만 재고 넘어가면 안 되므로 같은 부하로 대가도 쟀습니다. 조회 지연 p50이 281ms에서 369ms로 +31%, 처리량이 18회/초에서 15회/초로 −17%였습니다. 동시 20 고정이라 처리량은 요청당 지연의 역수이므로, 서버가 막힌 것이 아니라 조회 1건이 느려진 것입니다. 실사용은 클라이언트가 job 하나를 폴링하는 패턴이라 같은 결과를 동시 20으로 두들기는 이 테스트는 최악 조건에 가깝습니다. '결과가 크면 훨씬 나빠질 것'이라는 우려는 따로 검증해 기각했습니다. 응답 50.86 MB짜리 꼬리 구간에서 +24%로, 평균 구간(+31%)보다 오히려 나았습니다. before도 2,120만 자를 Jackson으로 파싱하고 50 MB를 직렬화해야 했고 늘어난 것은 스토리지 fetch 한 번(+97ms)뿐이기 때문입니다. 비용도 정직하게 적었습니다. OCI Cache 최소 노드가 2 GB고 이미 거기 있어서 당장 절감은 없습니다. 이득은 하루 5천 건을 넘는 순간부터의 증설 회피이고, 그보다 중요한 것은 job 1건당 점유가 문서 크기와 무관한 상수가 되어 용량 계획이 산술이 됐다는 점입니다.",
+          "codes": [
+            "+31%",
+            "−17%",
+            "꼬리 +24%",
+            "증설 회피"
+          ],
+          "tables": [
+            {
+              "headers": [
+                "항목",
+                "before",
+                "after",
+                "변화"
+              ],
+              "rows": [
+                [
+                  "조회 지연 p50",
+                  "281 ms",
+                  "369 ms",
+                  "+31%"
+                ],
+                [
+                  "조회 지연 p95",
+                  "3,418 ms",
+                  "3,956 ms",
+                  "+16%"
+                ],
+                [
+                  "처리량 (동시 20)",
+                  "18회/초",
+                  "15회/초",
+                  "−17%"
+                ],
+                [
+                  "대용량 결과 지연 (50.86 MB)",
+                  "412 ms",
+                  "509 ms",
+                  "+24% — 악화 안 됨"
+                ],
+                [
+                  "결과 유실 · 파싱 유실 · 5xx",
+                  "0",
+                  "0",
+                  "없음"
+                ]
+              ],
+              "caption": "받아들인 대가와, 기각한 우려"
+            }
+          ],
+          "images": [
+            {
+              "src": "images/SionicAI/loadtest-redis/get-latency-before.jpg",
+              "caption": "before — 서버측 GET job 평균 지연 8.5~12.5 ms (Redis 에서 즉시 반환)"
+            },
+            {
+              "src": "images/SionicAI/loadtest-redis/get-latency-after.jpg",
+              "caption": "after — 21~46 ms. 스토리지 fetch 한 번이 늘어난 만큼이며, 유실 위험을 닫는 대가로 수용"
+            }
+          ]
+        }
+      ],
+      "results": [
+        {
+          "label": "부하 중 무증상 유실 job",
+          "before": "1,115건 (로그 0줄)",
+          "after": "0건"
+        },
+        {
+          "label": "job 1건당 Redis 점유",
+          "before": "396.5 KiB",
+          "after": "1.01 KiB"
+        },
+        {
+          "label": "2 GB 도달 (꼬리 포함)",
+          "before": "약 35건",
+          "after": "실패 양식이 닫힘"
+        },
+        {
+          "label": "받아들인 대가",
+          "before": null,
+          "after": "조회 +31% · 유실 0"
+        }
+      ],
+      "tags": [
+        "Python",
+        "Redis",
+        "부하 테스트",
+        "관측성",
+        "vLLM"
+      ]
+    },
+    {
+      "id": "doclayout-kotlin",
+      "title": "Python 레이아웃 서비스 코틀린 이관",
+      "company": "Sionic AI",
+      "year": "2026",
+      "subtitle": "제안·설계·이관·검증 전 과정 주도 — 비결정적 파이프라인의 동등성을 어떻게 증명하나",
+      "situation": "문서 레이아웃 검출이 별도 Python 서비스로 분리돼 있었습니다. 서비스로 두면 parse_result.json을 두 번 쓰고 렌더 이미지 N장과 함께 되읽는 왕복이 구조적으로 강제되고, 그 사이를 3초 간격 최대 600회 폴링으로 기다립니다. 독립 배포의 이득은 가설인 반면 왕복 제거는 확정 이득이라 판단해 이관을 제안하고 설계부터 검증까지 주도했습니다. 다만 진짜 어려움은 성능이 아니라 검증이었습니다. 파싱이 LLM이라 같은 PDF를 두 번 넣어도 결과가 다릅니다. '옮기기 전과 후를 비교한다'는 통상적인 이관 검증이 이 파이프라인에서는 성립하지 않았습니다.",
+      "findings": [
+        {
+          "title": "동등성 비교가 성립하지 않는다는 것을 먼저 증명",
+          "content": "같은 Python 파이프라인으로 5개 문서를 3번 돌려 재봤습니다. 54페이지 중 글자까지 똑같은 페이지는 3페이지뿐이고 내용 유사도는 97%였습니다. 문제는 그 작은 차이가 뒤로 갈수록 커진다는 것입니다. 파싱 글자 97% 일치가 박스 짝짓기에서 39~71%로 떨어지고 최종 결과는 최대 25%까지 벌어집니다. 짝짓기가 글자 겹침으로 순위를 매기니 띄어쓰기 하나로 순위가 뒤집혀 다른 박스에 붙기 때문입니다. 즉 이관 후 결과가 25% 달라도 이관이 틀린 건지 파싱이 달라진 건지 구분할 수 없습니다. 이 사실을 먼저 수치로 못박은 것이 이후 검증 설계 전체의 근거가 됐습니다.",
+          "codes": [
+            "유사도 97%",
+            "짝짓기 39~71%",
+            "최종 최대 25%"
+          ],
+          "tables": [
+            {
+              "headers": [
+                "문서",
+                "페이지",
+                "이관 전",
+                "이관 후 (3회 평균)",
+                "배율"
+              ],
+              "rows": [
+                [
+                  "01 수학과 교육과정",
+                  "20",
+                  "229.5s",
+                  "72.7s",
+                  "3.16×"
+                ],
+                [
+                  "02 비대면 계좌개설",
+                  "5",
+                  "20.6s",
+                  "28.3s",
+                  "0.73×"
+                ],
+                [
+                  "03 상속업무",
+                  "10",
+                  "25.5s",
+                  "26.7s",
+                  "0.96×"
+                ],
+                [
+                  "04 신용융자거래",
+                  "7",
+                  "35.7s",
+                  "31.7s",
+                  "1.13×"
+                ],
+                [
+                  "05 영업점계좌 개설",
+                  "12",
+                  "30.6s",
+                  "25.0s",
+                  "1.22×"
+                ],
+                [
+                  "합계",
+                  "54",
+                  "341.9s",
+                  "184.3s",
+                  "1.85× (−46.1%)"
+                ]
+              ],
+              "caption": "개선폭이 페이지 수에 비례한다 — 제거한 오버헤드가 페이지당 왕복이었다는 근거"
+            }
+          ]
+        },
+        {
+          "title": "파싱 의존 여부로 검증 전략을 둘로 가르기",
+          "content": "단일 비교 기준을 포기하고 단계의 성격에 따라 다른 기준을 적용했습니다. 박스 검출처럼 페이지 이미지만 보고 파싱 글자를 안 쓰는 단계는 몇 번 돌려도 같아야 하므로 정확 일치를 요구했습니다. 짝짓기 이후 파싱에 의존하는 단계는 파싱을 다시 돌리지 않고 저장해둔 파싱 결과를 파일에서 꺼내 그대로 먹여 입력을 고정했습니다. 이렇게 나눠야 '틀렸다'와 '원래 흔들린다'가 섞이지 않습니다.",
+          "codes": [
+            "정확 일치 요구",
+            "입력 고정",
+            "단계별 분리"
+          ],
+          "mermaid": [
+            {
+              "src": "diagrams/SionicAI/doclayout-kotlin/roundtrip.mmd",
+              "caption": "왕복·폴링·컨테이너 제거"
+            }
+          ]
+        },
+        {
+          "title": "정답을 원본 Python 함수에서 직접 뽑기 — 3,373건 불일치 0",
+          "content": "골든을 만들 때 Python 로직을 다시 구현해 비교하면 다시 구현한 쪽이 틀렸을 때 알 수 없습니다. 그래서 원본 모듈의 내부 함수를 그대로 import해 호출하고 그 출력을 JSON으로 저장한 뒤 Kotlin 테스트가 읽어 대조하게 했습니다. 단계별 골든 생성기 14개를 이 방식으로 만들어 정규식 25개·번호 마커 2,700건, 조립 전체 통합 74건을 포함해 12개 항목 3,373건을 검사했고 불일치는 0이었습니다. 실제 문서 검증에서도 5문서 54페이지를 3회씩 돌려 박스 검출이 문서별로 338/71/161/195/222 — 합계 987개가 회차마다 전부 같았고, 머리말·꼬리말 판정도 987/987 100%, 30건 요청 전부 layoutError 없음이었습니다.",
+          "codes": [
+            "원본 함수 직접 호출",
+            "골든 생성기 14개",
+            "3,373건 / 불일치 0",
+            "987/987 = 100%"
+          ],
+          "snippets": [
+            {
+              "code": "from app.pipeline.assemble_markdown import _assign_boxes   # 원본 함수를 그대로\ngolden = _assign_boxes(fixture)                           # 이 출력을 JSON 으로 저장\n#  다시 구현해서 비교하면, 다시 구현한 쪽이 틀렸을 때 알 수 없다",
+              "caption": "골든의 정답을 원본 Python 내부 함수에서 직접 뽑았다. Kotlin 테스트가 이 JSON 을 읽어 대조한다"
+            }
+          ],
+          "tables": [
+            {
+              "headers": [
+                "대상",
+                "검사",
+                "불일치"
+              ],
+              "rows": [
+                [
+                  "정규식 25개 + 번호 마커",
+                  "2,700",
+                  "0"
+                ],
+                [
+                  "박스 딱지 확정 + 머리말·꼬리말",
+                  "49",
+                  "0"
+                ],
+                [
+                  "박스 짝짓기",
+                  "76",
+                  "0"
+                ],
+                [
+                  "제목 깊이",
+                  "46",
+                  "0"
+                ],
+                [
+                  "박스 검출 (라벨·중복제거·정렬)",
+                  "55",
+                  "0"
+                ],
+                [
+                  "마크다운 쪼개기",
+                  "77",
+                  "0"
+                ],
+                [
+                  "빈 페이지 복구",
+                  "32",
+                  "0"
+                ],
+                [
+                  "목차 트리 + 응답 변환",
+                  "84",
+                  "0"
+                ],
+                [
+                  "문단 배정 (4신호)",
+                  "42",
+                  "0"
+                ],
+                [
+                  "구간 흡수 + 이미지 머지",
+                  "108",
+                  "0"
+                ],
+                [
+                  "이미지 태그 라우팅",
+                  "30",
+                  "0"
+                ],
+                [
+                  "조립 전체 통합",
+                  "74",
+                  "0"
+                ]
+              ],
+              "caption": "12개 항목 3,373건 / 불일치 0"
+            }
+          ]
+        },
+        {
+          "title": "87.8%가 나왔을 때 이관이 아니라 비교 방식을 의심",
+          "content": "첫 대조에서 좌표 일치율이 87.8%로 나왔습니다. 원인은 이관이 아니라 비교 기준이었습니다. rawBoxes의 index는 매칭 순서에 따라 달라지는 값이라 기준이 될 수 없었습니다. 좌표를 키로 하는 집합 비교로 바꾸니 987/987 100%가 나왔습니다. 낮은 수치를 결함으로 받아들이기 전에 그 수치를 만든 측정 기준이 타당한지부터 확인해야 한다는 사례였습니다.",
+          "codes": [
+            "인덱스 기준 87.8%",
+            "좌표 기준 100%"
+          ],
+          "images": [
+            {
+              "src": "images/SionicAI/doclayout-kotlin/golden-box-compare.jpg",
+              "caption": "골든 대조 실행 — 좌표 집합 기준으로 5문서 987개 박스가 전부 일치"
+            }
+          ],
+          "tables": [
+            {
+              "headers": [
+                "비교 기준",
+                "일치",
+                "판정"
+              ],
+              "rows": [
+                [
+                  "rawBoxes[].index 로 zip",
+                  "889 / 1,012 = 87.8%",
+                  "틀린 비교 — index 는 매칭 후 매겨지는 읽기순서"
+                ],
+                [
+                  "좌표 집합",
+                  "987 / 987 = 100%",
+                  "맞는 비교"
+                ]
+              ],
+              "caption": "같은 데이터를 어떻게 비교하느냐로 87.8% 와 100% 가 갈렸다"
+            }
+          ]
+        },
+        {
+          "title": "100%가 아닌 항목이 왜 정상인지까지 근거를 댄다",
+          "content": "제목 깊이는 77.7%였습니다. 무번호 제목의 깊이가 매칭된 파싱 블록의 헤딩 깊이를 폴백으로 쓰므로 파싱에 의존하는 항목입니다. 골든 자체가 3회 반복에서 매칭 내용이 39~71%만 일치했으므로 77.7%는 오히려 안정적인 쪽입니다. 최종 원소 수도 회차 간 편차를 함께 재서, 골든이 0.7~22.2%로 흔들릴 때 이관 후는 1.5~14.0%로 오히려 덜 흔들린다는 것을 보였습니다. 다만 양쪽 모두 표본이 3개뿐이라 '이관 후가 더 안정적이다'를 확정하지는 않고, 판정을 바꾸지 않는 선에서 한계를 명시했습니다.",
+          "codes": [
+            "77.7% 근거",
+            "편차 22.2% → 10.5%",
+            "표본 3개 한계 명시"
+          ],
+          "tables": [
+            {
+              "headers": [
+                "문서",
+                "골든 편차",
+                "이관 후 편차"
+              ],
+              "rows": [
+                [
+                  "01 수학과 시행세칙",
+                  "3.1%",
+                  "3.1%"
+                ],
+                [
+                  "02 비대면 계좌개설",
+                  "22.2%",
+                  "10.5%"
+                ],
+                [
+                  "03 상속업무",
+                  "10.7%",
+                  "7.1%"
+                ],
+                [
+                  "04 신용융자거래",
+                  "6.5%",
+                  "2.4%"
+                ],
+                [
+                  "05 영업점계좌 개설",
+                  "0.7%",
+                  "2.0%"
+                ],
+                [
+                  "최댓값",
+                  "22.2%",
+                  "10.5%"
+                ]
+              ],
+              "caption": "회차 간 자체 편차. 이관 후가 덜 흔들리지만 양쪽 표본이 3개뿐이라 확정하지는 않았다"
+            }
+          ]
+        },
+        {
+          "title": "언어 간 기본값 차이와, 추정 대신 실측",
+          "content": "이관에서 조용히 결과를 바꾸는 것은 문법이 아니라 표준 라이브러리 기본값이었습니다. Python의 re에서 \\d \\s \\w는 유니코드 기준인데 Java는 ASCII 기준이라 전각 숫자나 이데오그래픽 스페이스가 매칭되지 않습니다. 정규식 25개 전부에 (?U)를 붙였습니다. 옮기는 김에 원본 규칙의 결함 하나도 고쳤는데, 코드만 보고 영향을 1.9%로 추정했다가 실제 문서로 두 조건을 각각 3회 돌려 재봤습니다. 실측은 매칭 확정 +2.3%, 원소 +3.6%, 편차는 오히려 감소였습니다. 같은 프로세스로 합치면서 늘어날 힙도 추정하지 않고 쟀습니다. 임베딩 벡터 전체가 16MB로 무시할 수준이었고, 실질 부담은 이관과 무관하게 이미 존재하던 렌더 이미지(A4 250dpi 한 장 17MiB)였습니다.",
+          "codes": [
+            "(?U) · 정규식 25개",
+            "추정 1.9% → 실측",
+            "힙 16MB 실측"
+          ]
+        }
+      ],
+      "results": [
+        {
+          "label": "5개 문서 합계",
+          "before": "341.9초",
+          "after": "184.3초"
+        },
+        {
+          "label": "20페이지 문서",
+          "before": "229.5초",
+          "after": "72.7초"
+        },
+        {
+          "label": "단위 검증",
+          "before": null,
+          "after": "3,373건 / 불일치 0"
+        },
+        {
+          "label": "박스 검출 동등성",
+          "before": null,
+          "after": "987 / 987"
+        },
+        {
+          "label": "온프렘 컨테이너",
+          "before": "+1",
+          "after": "+0"
+        }
+      ],
+      "tags": [
+        "Kotlin",
+        "Python",
+        "마이그레이션",
+        "골든 테스트",
+        "비결정적 시스템 검증"
+      ]
     },
     {
       "id": "inference-fallback",
@@ -78,29 +859,68 @@
         {
           "title": "추론 계약을 두 계층으로 분리 (포트-어댑터)",
           "content": "'문서 1개(여러 페이지)'와 '페이지 1장'을 별도 포트(DocumentInferencerPort / PageInferencer)로 쪼갰습니다. 문서 루프·취소 확인·토큰 이벤트는 공용 오케스트레이터가 소유하고 provider는 PageInferencer 하나만 구현하도록 해, vLLM 전용이던 취소 확인을 전 provider 공통으로 확대했습니다. 이 정리로 실제로는 안 쓰이던 메서드를 강제 구현하며 남아 있던 죽은 코드 약 450줄을 제거했습니다.",
-          "codes": ["DocumentInferencerPort", "PageInferencer", "PageImageSource"]
+          "codes": [
+            "DocumentInferencerPort",
+            "PageInferencer",
+            "PageImageSource"
+          ]
         },
         {
           "title": "provider 선택을 설정 스위치로 (전략 패턴)",
           "content": "app.model-provider(env MODEL_PROVIDER) 값으로 어떤 어댑터 모듈을 조립할지 부트 타임에 결정하도록 하고, 새 provider OpenGateway를 추가해 SaaS 기본을 전환했습니다. 외부 API는 무변경 — 요청/응답 스펙 그대로 추론 엔진만 교체됩니다. when(modelProvider)도 exhaustive라 새 provider 누락은 컴파일 에러입니다. 전환 과정에서 OpenGateway가 thinking 기본 ON이라 reasoning_tokens가 출력 토큰을 잠식하는 문제를 /v1/responses + thinking_budget=0으로 해결하고, image_url을 data URI로 보내야 하는 것까지 와이어포맷 단위로 실측 검증했습니다.",
-          "codes": ["MODEL_PROVIDER", "@Import", "when", "thinking_budget"]
+          "codes": [
+            "MODEL_PROVIDER",
+            "@Import",
+            "when",
+            "thinking_budget"
+          ]
         },
         {
           "title": "Fallback = Chain of Responsibility",
           "content": "model-provider=fallback을 추가해 primary(OpenGateway)가 재시도까지 소진한 가용성 오류로 실패하면 secondary(Gemini)로 페이지 단위 자동 전환합니다. 핵심은 '언제 넘길지'를 오류 성격으로 가른 것 — 5xx·네트워크 같은 가용성 오류는 provider를 바꾸면 성공할 수 있어 전환하고, 콘텐츠 차단(CONTENT_BLOCKED)은 바꿔도 동일하게 실패하므로 전파합니다. 재시도(provider 내부 @Retryable, 400/401/403 제외)와 전환(fallback 체인)은 역할이 다른 독립 계층으로 분리했고, 전환 단위를 페이지 1장으로 둬 한 페이지 실패가 문서 전체 재시도로 번지지 않게 했습니다.",
-          "codes": ["FallbackPageInferencer", "@Retryable", "CONTENT_BLOCKED"],
+          "codes": [
+            "FallbackPageInferencer",
+            "@Retryable",
+            "CONTENT_BLOCKED"
+          ],
           "mermaid": [
-            { "src": "diagrams/inference-fallback/fallback-flow.mmd", "caption": "Fallback 판단 흐름" }
+            {
+              "src": "diagrams/SionicAI/inference-fallback/fallback-flow.mmd",
+              "caption": "Fallback 판단 흐름"
+            }
           ]
         }
       ],
       "results": [
-        { "label": "단일 provider 장애", "before": "잡 전체 실패", "after": "페이지 단위 secondary 승계" },
-        { "label": "provider 교체", "before": "코드·배포 변경", "after": "env 스위치" },
-        { "label": "죽은 코드", "before": null, "after": "약 450줄 제거" },
-        { "label": "취소 확인", "before": "vLLM 경로만", "after": "전 provider 공통" }
+        {
+          "label": "단일 provider 장애",
+          "before": "잡 전체 실패",
+          "after": "페이지 단위 secondary 승계"
+        },
+        {
+          "label": "provider 교체",
+          "before": "코드·배포 변경",
+          "after": "env 스위치"
+        },
+        {
+          "label": "죽은 코드",
+          "before": null,
+          "after": "약 450줄 제거"
+        },
+        {
+          "label": "취소 확인",
+          "before": "vLLM 경로만",
+          "after": "전 provider 공통"
+        }
       ],
-      "tags": ["Kotlin", "Spring Boot", "포트-어댑터", "Chain of Responsibility", "Resilience"]
+      "tags": [
+        "Kotlin",
+        "Spring Boot",
+        "포트-어댑터",
+        "Chain of Responsibility",
+        "Resilience"
+      ],
+      "hidden": true
     },
     {
       "id": "etl-bottleneck",
@@ -114,11 +934,23 @@
           "step": "1단계",
           "title": "환율 쿼리 — self-join 안티패턴 제거",
           "content": "환율 데이터의 최신성을 확인하기 위해 사용되던 self-join 안티패턴이 원인이었습니다. 동일 테이블을 두 번 스캔하며 Disk I/O가 급증하고 있었습니다. Snowflake Warehouse 수직 확장만으로는 약 2% 수준의 미미한 개선만 가능했는데, 이는 근본 원인이 I/O 패턴 자체에 있었기 때문입니다. PARTITION BY + ROW_NUMBER 윈도우 함수로 대체해 CPU-bound 연산으로 전환했습니다. 수직 확장 시 처리 시간이 선형적으로 감소하는 구조도 함께 확보했습니다.",
-          "codes": ["self-join", "PARTITION BY + ROW_NUMBER"],
+          "codes": [
+            "self-join",
+            "PARTITION BY + ROW_NUMBER"
+          ],
           "images": [
-            { "src": "images/etl-bottleneck/queryprofile-before.webp", "caption": "작업 전 Snowflake Query Profile (self-join I/O 패턴)" },
-            { "src": "images/etl-bottleneck/currency-before.webp", "caption": "작업 전 환율 쿼리 실행 시간" },
-            { "src": "images/etl-bottleneck/currency-after.webp", "caption": "작업 후 환율 쿼리 실행 시간" }
+            {
+              "src": "images/AB180/etl-bottleneck/queryprofile-before.webp",
+              "caption": "작업 전 Snowflake Query Profile (self-join I/O 패턴)"
+            },
+            {
+              "src": "images/AB180/etl-bottleneck/currency-before.webp",
+              "caption": "작업 전 환율 쿼리 실행 시간"
+            },
+            {
+              "src": "images/AB180/etl-bottleneck/currency-after.webp",
+              "caption": "작업 후 환율 쿼리 실행 시간"
+            }
           ],
           "result": "87분 → 12분 (86% 단축)"
         },
@@ -128,7 +960,10 @@
           "content": "소수의 straggler 파일(~1,780만 row)이 tail latency를 지배하는 데이터 스큐 문제였습니다. 대부분의 파일은 기존 ECS 병렬 처리로 이미 충분히 소화되고 있었고, 병목은 일부 대용량 파일 구간에 국한됐습니다. 일부 파일 때문에 Spark를 도입하면 전체 파이프라인이 클러스터 운영·모니터링·장애 대응 부담을 떠안게 되므로, 문제 규모에 비해 과한 선택이라 판단해 기존 ECS 위에서 MapReduce 패턴을 직접 구현했습니다. 대용량 Raw 파일을 chunk 단위로 분할 저장하고 병렬 transform 후 aggregate하는 구조로 재설계했으며, Transform 전용 ECS 클러스터를 분리해 태스크 수 조절만으로 수평 확장이 가능하도록 확보했습니다.",
           "codes": [],
           "mermaid": [
-            { "src": "diagrams/etl-bottleneck/mapreduce.mmd", "caption": "MapReduce 기반 Transform 아키텍처" }
+            {
+              "src": "diagrams/AB180/etl-bottleneck/mapreduce.mmd",
+              "caption": "MapReduce 기반 Transform 아키텍처"
+            }
           ],
           "result": "37분 → 4분 (90% 단축)"
         },
@@ -136,18 +971,46 @@
           "step": "3단계",
           "title": "Data Acquisition — Rate Limit 미고려 retry 개선",
           "content": "여러 외부 API 중 단일 API가 IP 단위 Rate Limiting 정책을 사용하고 있었고, request wrapper는 이를 고려하지 않은 exponential retry 전략을 사용해 고객 수 증가에 따라 처리 시간이 기하급수적으로 늘어났습니다. 네트워크 요청 특성상 수직 확장의 효과는 제한적이었고, IP 단위 제한으로 수평 확장도 불가능했습니다. 동적 IP로 NAT Gateway를 우회하는 방식도 검토했으나 사내 보안 정책상 제외했습니다. 해당 매체 스펙(초당 50건 제한, 짧은 reset time)에 맞춰 최대 2초 sleep 상한 + jitter 기반 요청 간격 랜덤화를 적용하고 retry 횟수를 100회로 상향했습니다.",
-          "codes": ["exponential retry"],
+          "codes": [
+            "exponential retry"
+          ],
           "result": "34분 → 11분 (67% 단축)"
         }
       ],
       "results": [
-        { "label": "환율 쿼리", "before": "87분", "after": "12분" },
-        { "label": "Transform", "before": "37분", "after": "4분" },
-        { "label": "API 호출", "before": "34분", "after": "11분" },
-        { "label": "전체 파이프라인", "before": "4h 34m", "after": "1h 50m" },
-        { "label": "운영 리소스", "before": null, "after": "45% 절감" }
+        {
+          "label": "환율 쿼리",
+          "before": "87분",
+          "after": "12분"
+        },
+        {
+          "label": "Transform",
+          "before": "37분",
+          "after": "4분"
+        },
+        {
+          "label": "API 호출",
+          "before": "34분",
+          "after": "11분"
+        },
+        {
+          "label": "전체 파이프라인",
+          "before": "4h 34m",
+          "after": "1h 50m"
+        },
+        {
+          "label": "운영 리소스",
+          "before": null,
+          "after": "45% 절감"
+        }
       ],
-      "tags": ["Airflow", "Python", "Snowflake", "MapReduce", "AWS ECS"]
+      "tags": [
+        "Airflow",
+        "Python",
+        "Snowflake",
+        "MapReduce",
+        "AWS ECS"
+      ]
     },
     {
       "id": "spark-lineage",
@@ -160,12 +1023,19 @@
         {
           "title": "Driver Stop-the-World GC",
           "content": "같은 시각 9개 executor에서 동시에 Ignoring response for RPC 경고가 발생했습니다. Driver가 GC로 완전히 멈춰 executor RPC 응답을 수신하지 못한 것이었습니다. SQLAppStatusListener 이벤트 처리에 9~10초씩 소요되며 단일 스레드 큐가 포화 상태에 빠진 것도 확인했습니다.",
-          "codes": ["Ignoring response for RPC", "SQLAppStatusListener"]
+          "codes": [
+            "Ignoring response for RPC",
+            "SQLAppStatusListener"
+          ]
         },
         {
           "title": "근본 원인 — lineage 폭발",
           "content": "1,609개 lazy DataFrame을 union으로 누적한 뒤 count() action을 호출하자 29,360개 task가 동시 생성됐습니다. Driver가 이 메타데이터를 전부 메모리에 유지하며 GC 압박이 시작됐습니다. count()는 각 executor가 숫자 하나만 반환하는 구조라 Driver가 겨우 버텼지만, 이어진 repartition().write()가 동일 lineage를 재평가하며 shuffle 오버헤드까지 더해져 Driver를 완전히 무너뜨렸습니다.",
-          "codes": ["union", "count()", "repartition().write()"]
+          "codes": [
+            "union",
+            "count()",
+            "repartition().write()"
+          ]
         },
         {
           "title": "재설계 — 파티션별 즉시 적재",
@@ -174,11 +1044,27 @@
         }
       ],
       "results": [
-        { "label": "실행 시간", "before": "10시간+", "after": "2시간" },
-        { "label": "Driver task 추적", "before": "29,360", "after": "~18" },
-        { "label": "MySQL 읽기", "before": "2회/파티션", "after": "1회" }
+        {
+          "label": "실행 시간",
+          "before": "10시간+",
+          "after": "2시간"
+        },
+        {
+          "label": "Driver task 추적",
+          "before": "29,360",
+          "after": "~18"
+        },
+        {
+          "label": "MySQL 읽기",
+          "before": "2회/파티션",
+          "after": "1회"
+        }
       ],
-      "tags": ["Spark", "AWS Glue", "Python"]
+      "tags": [
+        "Spark",
+        "AWS Glue",
+        "Python"
+      ]
     },
     {
       "id": "llm-chat",
@@ -191,33 +1077,76 @@
         {
           "title": "@Transactional + Flux 충돌",
           "content": "@Transactional 메서드에서 Flux를 반환하면 트랜잭션이 메서드 리턴 시점에 닫혀, 스트리밍 완료 후 DB 접근이 불가했습니다. DB 접근 구간(prepareChat(), saveChat())을 별도 @Transactional 메서드로 분리해 해결했습니다. 부수 효과로 LLM 호출 중 DB 커넥션 점유 문제도 함께 해결됐습니다.",
-          "codes": ["@Transactional", "Flux", "prepareChat()", "saveChat()"]
+          "codes": [
+            "@Transactional",
+            "Flux",
+            "prepareChat()",
+            "saveChat()"
+          ]
         },
         {
           "title": "N+1 쿼리 제거",
           "content": "스레드 목록 조회 시 각 스레드마다 채팅을 개별 조회하던 N+1 문제가 있었습니다(페이지 사이즈 20 기준 21회 쿼리). @EntityGraph/JOIN FETCH로 해결하는 방법도 있었지만, 스레드 페이지네이션과 결합되면 Hibernate가 메모리에서 페이지네이션을 수행하는 문제(HHH90003004)가 발생할 수 있어 제외했습니다. 대신 스레드 ID 목록을 모아 IN절로 일괄 조회한 뒤 메모리에서 threadId 기준으로 그룹화하는 방식을 택해 페이지네이션 호환성을 유지했습니다. 쿼리 수 21회 → 2회로 감소했습니다.",
-          "codes": ["IN", "@EntityGraph", "JOIN FETCH", "HHH90003004"]
+          "codes": [
+            "IN",
+            "@EntityGraph",
+            "JOIN FETCH",
+            "HHH90003004"
+          ]
         },
         {
           "title": "데이터 정합성 — 케이스별 보호 수준 차등화",
           "content": "케이스별 충돌 가능성과 비용을 따져 보호 강도를 차등화했습니다. 피드백 중복 생성은 애플리케이션 존재 체크 + DB unique 제약으로 이중 방어 — 밀리초 단위 동시 중복 요청이 비현실적이라 비관락 대신 DB 제약을 최후 방어선으로 삼았습니다. 피드백 상태 변경은 lost update가 정합성을 오염시킬 수 있어 보호는 필요하되, write 경합이 드물어 비관락의 블로킹 비용은 불필요하다고 판단했습니다. 거의 공짜인 @Version 낙관락으로 lost update만 막고, 드물게 발생하는 충돌은 409 Conflict로 클라이언트 재시도에 위임했습니다. 스레드 30분 규칙의 race condition은 스레드가 하나 더 생겨도 채팅 저장 정합성이 깨지지 않아 별도 처리하지 않았습니다. 격리 수준도 필요한 지점에만 정확히 보호를 거는 편이 일괄 상향보다 유리하다고 판단해 PostgreSQL 기본 READ COMMITTED를 유지했습니다.",
-          "codes": ["@Version", "UniqueConstraint", "ObjectOptimisticLockingFailureException", "READ COMMITTED"]
+          "codes": [
+            "@Version",
+            "UniqueConstraint",
+            "ObjectOptimisticLockingFailureException",
+            "READ COMMITTED"
+          ]
         },
         {
           "title": "Circuit Breaker로 장애 전파 차단",
           "content": "retry 3회 + 10초 타임아웃 구조는 LLM API 다운 시 단일 요청당 최대 ~33초 스레드를 점유해, 동시 요청 누적 시 커넥션 풀 고갈로 cascade 실패 위험이 있었습니다. Resilience4j Circuit Breaker를 적용해 최근 10회 실패율 50% 초과 시 OPEN으로 전환, 30초간 즉시 fallback(503)으로 응답하도록 했습니다. Retry(일시적 오류)와 Circuit Breaker(지속 장애)는 역할이 다른 계층이라 병행했고, Rate Limiting은 인스턴스 간 상태 공유와 설정 중복 문제로 애플리케이션 대신 API Gateway 계층의 관심사로 분리했습니다.",
-          "codes": ["@CircuitBreaker", "Resilience4j", "OPEN", "HALF_OPEN", "fallback"],
+          "codes": [
+            "@CircuitBreaker",
+            "Resilience4j",
+            "OPEN",
+            "HALF_OPEN",
+            "fallback"
+          ],
           "mermaid": [
-            { "src": "diagrams/llm-chat/circuit-breaker.mmd", "caption": "Circuit Breaker 상태 전이" }
+            {
+              "src": "diagrams/Personal/llm-chat/circuit-breaker.mmd",
+              "caption": "Circuit Breaker 상태 전이"
+            }
           ]
         }
       ],
       "results": [
-        { "label": "쿼리 수", "before": "21회", "after": "2회" },
-        { "label": "장애 시 스레드 점유", "before": "최대 ~33초", "after": "즉시 차단" },
-        { "label": "정합성 방어", "before": null, "after": "낙관락 + unique 제약" }
+        {
+          "label": "쿼리 수",
+          "before": "21회",
+          "after": "2회"
+        },
+        {
+          "label": "장애 시 스레드 점유",
+          "before": "최대 ~33초",
+          "after": "즉시 차단"
+        },
+        {
+          "label": "정합성 방어",
+          "before": null,
+          "after": "낙관락 + unique 제약"
+        }
       ],
-      "tags": ["Kotlin", "Spring Boot", "PostgreSQL", "Resilience4j", "JWT", "Docker"]
+      "tags": [
+        "Kotlin",
+        "Spring Boot",
+        "PostgreSQL",
+        "Resilience4j",
+        "JWT",
+        "Docker"
+      ]
     },
     {
       "id": "hr-filter",
@@ -230,26 +1159,61 @@
         {
           "title": "비동기 배치 수거 — 블로킹 폴링을 걷어내다",
           "content": "대량 평가를 동기로 호출하면 비용과 rate limit이 곧바로 병목이라, 토큰을 50% 절감하는 Anthropic Message Batches API를 택했습니다. 첫 구현은 제출 직후 같은 스레드에서 완료까지 폴링하는 블로킹 루프였는데, Batches는 완료 webhook이 없어 폴링이 불가피한 데다 SLA가 최대 24시간이라, 스케줄러 스레드를 최대 하루 점유하고 재시작 시 메모리에 있던 배치 핸들이 사라져 제출한 배치가 고아가 되고 다음 실행이 같은 이력서를 재제출(비용 2배)하는 문제가 있었습니다. 제출과 수거를 별도 스케줄 잡으로 분리하고 배치 핸들(provider_batch_id)을 DB에 영속화해 재시작에도 살아남게 했고, 진행 중 배치가 있으면 제출을 건너뛰는 단일 in-flight 불변식과 25시간 stale 가드(실패 처리 후 재시도 롤백)를 더했습니다. 수거 주기는 '자주 폴링하면 비싸지 않나'부터 의심했지만, 상태 조회는 토큰이 과금되는 추론 호출이 아니라 메타데이터 GET이라 비용이 아니라 '완료 감지 지연 vs rate limit' 문제로 보고 5분으로 두었습니다.",
-          "codes": ["Message Batches API", "provider_batch_id", "in-flight 불변식", "rate limit"]
+          "codes": [
+            "Message Batches API",
+            "provider_batch_id",
+            "in-flight 불변식",
+            "rate limit"
+          ]
         },
         {
           "title": "LLM 출력을 신뢰 가능한 데이터로 — 스키마 강제",
           "content": "LLM 응답을 자유 텍스트로 받아 파싱하면 모델이 표현을 조금만 바꿔도 깨지는데, 평가 결과가 그대로 DB에 적재되는 구조라 이 취약성이 곧 데이터 정합성 문제로 이어졌습니다. 프롬프트로 형식을 유도하는 방식은 보장이 없어, 요청마다 JSON Schema를 강제(output_config.format)해 판정(enum)·점수·세부 점수·근거 구조를 API 레벨에서 못박고 파서는 스키마에 맞는 JSON만 역직렬화하도록 했습니다.",
-          "codes": ["output_config.format", "JSON Schema"]
+          "codes": [
+            "output_config.format",
+            "JSON Schema"
+          ]
         },
         {
           "title": "집계 카운터 정합성 — 애플리케이션이 아닌 DB에서 증분",
           "content": "배치 결과를 저장하며 통과/보류/탈락 카운터를 올리는데, 값을 읽어 +1 해서 다시 쓰는 방식은 동시 저장 시 lost update가 납니다. 애플리케이션에서 락을 잡는 대신, Exposed의 SQL 표현식으로 read-modify-write를 단일 UPDATE 문(컬럼 = 컬럼 + 1) 안에서 처리해 DB가 원자성을 보장하도록 했습니다.",
-          "codes": ["lost update", "SqlExpressionBuilder.plus", "UPDATE"]
+          "codes": [
+            "lost update",
+            "SqlExpressionBuilder.plus",
+            "UPDATE"
+          ]
         }
       ],
       "results": [
-        { "label": "LLM 호출 비용", "before": "동기 호출", "after": "배치 50% 절감" },
-        { "label": "배치 폴링", "before": "블로킹(최대 24h 점유)", "after": "논블로킹 5분 수거" },
-        { "label": "재시작 안전성", "before": "핸들 유실·중복 제출", "after": "DB 영속 + 단일 in-flight" },
-        { "label": "결과 파싱", "before": null, "after": "JSON Schema 강제" }
+        {
+          "label": "LLM 호출 비용",
+          "before": "동기 호출",
+          "after": "배치 50% 절감"
+        },
+        {
+          "label": "배치 폴링",
+          "before": "블로킹(최대 24h 점유)",
+          "after": "논블로킹 5분 수거"
+        },
+        {
+          "label": "재시작 안전성",
+          "before": "핸들 유실·중복 제출",
+          "after": "DB 영속 + 단일 in-flight"
+        },
+        {
+          "label": "결과 파싱",
+          "before": null,
+          "after": "JSON Schema 강제"
+        }
       ],
-      "tags": ["Kotlin", "Spring Boot", "PostgreSQL", "Anthropic API", "S3 / MinIO", "Docker"]
+      "tags": [
+        "Kotlin",
+        "Spring Boot",
+        "PostgreSQL",
+        "Anthropic API",
+        "S3 / MinIO",
+        "Docker"
+      ]
     },
     {
       "id": "trace-pipeline",
@@ -262,23 +1226,58 @@
         {
           "title": "Athena 기반 ETL → Airflow + Glue Spark 단순화",
           "content": "초기안은 Athena 기반 ETL이었지만, Tempo vParquet4 블록에 data.parquet·meta.json·bloom-0·index가 혼재해 parquet 분리 전처리 단계가 필수였습니다. 같은 리전 cross-account 전송이라 비용은 0이지만, 이 단계에 Athena Workgroup·Glue Catalog Table 2개·STS Transfer Job·cross-account IAM 체인이 겹쳐 실패 지점이 너무 많다고 판단해 제외했습니다. 대신 Airflow DAG가 Glue Spark job을 실행해 data.parquet을 필터·UNNEST 후 GCS에 적재하고, BQ External Table로 분석 환경에 노출하는 구조로 전환해 관리 포인트와 IAM 체인을 대폭 축소했습니다.",
-          "codes": ["vParquet4", "Airflow DAG", "Glue Spark", "BQ External Table"],
+          "codes": [
+            "vParquet4",
+            "Airflow DAG",
+            "Glue Spark",
+            "BQ External Table"
+          ],
           "mermaid": [
-            { "src": "diagrams/trace-pipeline/architecture.mmd", "caption": "채택한 파이프라인 구조" }
+            {
+              "src": "diagrams/NudgeHealthcare/trace-pipeline/architecture.mmd",
+              "caption": "채택한 파이프라인 구조"
+            }
           ]
         },
         {
           "title": "실행 모드 선택 — Python Shell 고려 후 Spark 통일",
           "content": "실행 모드로 Python Shell과 Spark를 실측 비교했습니다. 수십 GB 규모는 cold start 영향으로 Pandas DF가 더 빠르고 비용도 유리했지만, 1.5TB/일 테넌트는 Python Shell 6시간 $80 vs Spark 20분 $9로 결과가 뒤집혀 Spark가 필수였습니다. 테넌트 규모별 분기로 비용을 더 낮출 수도 있었지만, flow 통일과 유지보수 단순성을 우선해 전체를 Glue Spark로 처리하기로 했습니다. 소규모 테넌트 비용이 소폭 늘어나는 것은 감수하고 실행 경로를 하나로 유지했습니다.",
-          "codes": ["Python Shell", "Glue Spark"],
+          "codes": [
+            "Python Shell",
+            "Glue Spark"
+          ],
           "tables": [
             {
               "caption": "Glue 실행 모드별 비용 비교 (수십 GB/일 기준)",
-              "headers": ["방식", "DPU", "처리 시간", "비용/실행", "월 비용 (10 테넌트)"],
+              "headers": [
+                "방식",
+                "DPU",
+                "처리 시간",
+                "비용/실행",
+                "월 비용 (10 테넌트)"
+              ],
               "rows": [
-                ["Python Shell (최소)", "0.0625", "~15분", "$0.007", "~$2.10"],
-                ["Python Shell (표준)", "1", "~5분", "$0.037", "~$11"],
-                ["Spark", "2 (최소)", "~10분", "$0.15", "~$44"]
+                [
+                  "Python Shell (최소)",
+                  "0.0625",
+                  "~15분",
+                  "$0.007",
+                  "~$2.10"
+                ],
+                [
+                  "Python Shell (표준)",
+                  "1",
+                  "~5분",
+                  "$0.037",
+                  "~$11"
+                ],
+                [
+                  "Spark",
+                  "2 (최소)",
+                  "~10분",
+                  "$0.15",
+                  "~$44"
+                ]
               ]
             }
           ]
@@ -286,17 +1285,50 @@
         {
           "title": "OTel/Alloy direct export — 기술 가능성 vs 운영 현실성",
           "content": "각 백엔드의 Alloy(OTel Collector)에 BigQuery Exporter를 붙이는 방식도 기술적으로는 가능했지만, 운영 현실성을 우선해 제외했습니다: ① 필터 config가 테넌트 Alloy에 있어 DE가 독립 변경 불가, ② 엔드포인트 추가마다 백엔드 팀 협조 필요, ③ Alloy가 백엔드 서버 CPU 경합으로 응답속도 영향 가능(SRE 우려), ④ 테넌트에 GCP 인증정보 배포 → 보안 표면 확대, ⑤ BQ Streaming Insert + Storage 비용 증가.",
-          "codes": ["Alloy", "OTel Collector", "BQ Streaming Insert"]
+          "codes": [
+            "Alloy",
+            "OTel Collector",
+            "BQ Streaming Insert"
+          ]
         }
       ],
       "results": [
-        { "label": "관리 인프라", "before": "Athena + Glue Catalog + STS", "after": "Airflow + Glue Spark" },
-        { "label": "실행 경로", "before": null, "after": "Spark 단일 통일" },
-        { "label": "필터 변경", "before": "Alloy 재배포 필요", "after": "DAG 설정만 수정" },
-        { "label": "백엔드 영향", "before": "CPU 경합 가능", "after": "영향 0" },
-        { "label": "확장성", "before": "백엔드 팀 협조", "after": "DE 독립 확장" }
+        {
+          "label": "관리 인프라",
+          "before": "Athena + Glue Catalog + STS",
+          "after": "Airflow + Glue Spark"
+        },
+        {
+          "label": "실행 경로",
+          "before": null,
+          "after": "Spark 단일 통일"
+        },
+        {
+          "label": "필터 변경",
+          "before": "Alloy 재배포 필요",
+          "after": "DAG 설정만 수정"
+        },
+        {
+          "label": "백엔드 영향",
+          "before": "CPU 경합 가능",
+          "after": "영향 0"
+        },
+        {
+          "label": "확장성",
+          "before": "백엔드 팀 협조",
+          "after": "DE 독립 확장"
+        }
       ],
-      "tags": ["Airflow", "Python", "AWS Glue", "Spark", "S3", "GCS", "BigQuery", "OpenTelemetry"]
+      "tags": [
+        "Airflow",
+        "Python",
+        "AWS Glue",
+        "Spark",
+        "S3",
+        "GCS",
+        "BigQuery",
+        "OpenTelemetry"
+      ]
     },
     {
       "id": "de-infra",
@@ -309,26 +1341,58 @@
         {
           "title": "분산 → 허브 계정 단일화",
           "content": "각 서비스 계정에 흩어져 있던 Glue Job·Connection·IAM Role을 허브 계정 한 곳으로 모으고, 서비스 계정 쪽에는 Resource Gateway 한 번의 네트워크 설정만 남기는 구조로 재설계했습니다. 서비스 계정 IAM Role이 불필요해져 타 팀 협조 범위가 구조적으로 줄었고, Glue 스크립트는 단일 저장소에서 버전 관리되며 CloudWatch 로그도 한곳으로 집중됐습니다.",
-          "codes": ["Glue Job", "Resource Gateway"]
+          "codes": [
+            "Glue Job",
+            "Resource Gateway"
+          ]
         },
         {
           "title": "크로스 계정·리전 RDS 접근 — VPC Peering 선택",
           "content": "대상 계정의 RDS가 Seoul/Tokyo/Oregon 다중 리전에 걸쳐 있었습니다. PrivateLink 계열(NLB + Interface Endpoint, RDS Resource Endpoint)은 크로스 리전 미지원으로 Tokyo/Oregon 요건에서 탈락했고, SSH Tunnel은 계정마다 bastion EC2를 상시 운영해야 해 프로덕션 배치에 부적합했습니다. VPC Peering은 크로스 리전을 지원하고 같은 리전 전송은 무료, 크로스 리전도 $0.01/GB로 비용도 유리했습니다. 1:1 non-transitive 제약은 허브-스포크 구조라 영향이 없었고, CIDR 충돌은 허브 VPC를 10.128.0.0/20으로 설정해 회피했습니다.",
-          "codes": ["VPC Peering", "PrivateLink", "Transit Gateway"]
+          "codes": [
+            "VPC Peering",
+            "PrivateLink",
+            "Transit Gateway"
+          ]
         },
         {
           "title": "Terraform 구조 + GHA 기반 CI/CD",
           "content": "modules/는 재사용 가능한 building block, environments/{region}/{service}/{env}는 apply 단위로 분리해 서비스별 state 독립으로 변경 영향 범위를 제한하고, 서비스 간 의존성은 terraform_remote_state로 연결했습니다. CI는 PR 생성 시 영향받는 환경을 자동 감지해 plan을 코멘트로 게시, 확인 체크박스를 status check로 강제한 뒤 merge 후 auto apply되는 플로우로 구성했습니다. 로컬 apply를 금지해 모든 변경이 PR 이력과 리뷰를 거치도록 했습니다.",
-          "codes": ["terraform_remote_state", "terraform plan", "terraform apply"]
+          "codes": [
+            "terraform_remote_state",
+            "terraform plan",
+            "terraform apply"
+          ]
         }
       ],
       "results": [
-        { "label": "관리 범위", "before": "15+ 계정 분산", "after": "허브 계정 단일화" },
-        { "label": "신규 서비스 온보딩", "before": "계정별 권한 조율 반복", "after": "네트워크 1회 설정" },
-        { "label": "인프라 변경", "before": "콘솔 수동", "after": "PR 리뷰 + auto apply" },
-        { "label": "외부 RDS 접근", "before": null, "after": "VPC Peering (다중 리전)" }
+        {
+          "label": "관리 범위",
+          "before": "15+ 계정 분산",
+          "after": "허브 계정 단일화"
+        },
+        {
+          "label": "신규 서비스 온보딩",
+          "before": "계정별 권한 조율 반복",
+          "after": "네트워크 1회 설정"
+        },
+        {
+          "label": "인프라 변경",
+          "before": "콘솔 수동",
+          "after": "PR 리뷰 + auto apply"
+        },
+        {
+          "label": "외부 RDS 접근",
+          "before": null,
+          "after": "VPC Peering (다중 리전)"
+        }
       ],
-      "tags": ["Terraform", "AWS", "VPC Peering", "Github Actions"]
+      "tags": [
+        "Terraform",
+        "AWS",
+        "VPC Peering",
+        "Github Actions"
+      ]
     },
     {
       "id": "doc-change-tracker",
@@ -343,8 +1407,14 @@
           "content": "개선 방향을 정하기 전 실제 사용 패턴부터 조사했습니다. 2025-Q2 기준 채널 메시지 229개 중 사람 댓글은 9개, 나머지 220개가 자동 알림이었습니다. 알림 채널이 기능적으로 죽어 있다는 점을 수치로 확인한 뒤 개선에 착수했습니다.",
           "codes": [],
           "images": [
-            { "src": "images/doc-change-tracker/messages-before.webp", "caption": "작업 전 메시지: 220개" },
-            { "src": "images/doc-change-tracker/comments-before.webp", "caption": "작업 전 사람이 단 댓글: 9개" }
+            {
+              "src": "images/AB180/doc-change-tracker/messages-before.webp",
+              "caption": "작업 전 메시지: 220개"
+            },
+            {
+              "src": "images/AB180/doc-change-tracker/comments-before.webp",
+              "caption": "작업 전 사람이 단 댓글: 9개"
+            }
           ]
         },
         {
@@ -359,16 +1429,42 @@
         }
       ],
       "results": [
-        { "label": "자동 알림", "before": "220건/분기", "after": "48건/분기" },
-        { "label": "알림 감소율", "before": null, "after": "78% 감소" },
-        { "label": "채널 참여율", "before": null, "after": "6배 이상 증가" },
-        { "label": "타 팀 확장", "before": null, "after": "PM 등 트래킹 문서 추가 요청" }
+        {
+          "label": "자동 알림",
+          "before": "220건/분기",
+          "after": "48건/분기"
+        },
+        {
+          "label": "알림 감소율",
+          "before": null,
+          "after": "78% 감소"
+        },
+        {
+          "label": "채널 참여율",
+          "before": null,
+          "after": "6배 이상 증가"
+        },
+        {
+          "label": "타 팀 확장",
+          "before": null,
+          "after": "PM 등 트래킹 문서 추가 요청"
+        }
       ],
       "result_images": [
-        { "src": "images/doc-change-tracker/messages-after.webp", "caption": "작업 후 메시지: 48개" },
-        { "src": "images/doc-change-tracker/comments-after.webp", "caption": "작업 후 사람이 단 댓글: 66개" }
+        {
+          "src": "images/AB180/doc-change-tracker/messages-after.webp",
+          "caption": "작업 후 메시지: 48개"
+        },
+        {
+          "src": "images/AB180/doc-change-tracker/comments-after.webp",
+          "caption": "작업 후 사람이 단 댓글: 66개"
+        }
       ],
-      "tags": ["Node.js", "Github Actions", "OpenAI API"]
+      "tags": [
+        "Node.js",
+        "Github Actions",
+        "OpenAI API"
+      ]
     },
     {
       "id": "motion-beat",
@@ -386,13 +1482,25 @@
         {
           "title": "랜덤 매칭 레이스 컨디션 — Mutex 적용",
           "content": "마지막 자리에 여러 플레이어가 동시에 진입하면 레이스 컨디션이 발생할 수 있었습니다. Mutex를 적용해 룸 진입 연산을 서버에서 원자적으로 처리하도록 했습니다.",
-          "codes": ["Mutex"]
+          "codes": [
+            "Mutex"
+          ]
         }
       ],
       "results": [
-        { "label": "시작 시간 편차", "before": "최대 5초", "after": "0.4초" }
+        {
+          "label": "시작 시간 편차",
+          "before": "최대 5초",
+          "after": "0.4초"
+        }
       ],
-      "tags": ["JavaScript", "Node.js", "Socket.IO", "MongoDB", "AWS"]
+      "tags": [
+        "JavaScript",
+        "Node.js",
+        "Socket.IO",
+        "MongoDB",
+        "AWS"
+      ]
     }
   ]
 }
