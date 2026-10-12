@@ -620,3 +620,211 @@ footer p {
   color: var(--muted);
 }
 .toc-company:first-child { margin-top: 0; }
+
+/* ───────── 인쇄 / PDF ─────────
+   화면은 스크롤이라 여백이 넉넉해도 되지만 종이는 쪽수가 곧 비용이다.
+   내용을 지우지 않고 밀도만 올린다. */
+@media print {
+  /* 크롬은 페이지 여백에 날짜·URL 을 찍는다. 여백을 0 으로 두면 찍힐 자리가 사라진다. */
+  @page {
+    margin: 0;
+    size: A4;
+  }
+
+  /* 종이는 pt 로 다룬다. 본문 10pt 가 A4 에서 가장 편하게 읽히는 크기다. */
+  html { font-size: 13px; }
+
+  /* 서체 통일 — Arial 계열 산세리프. 한글은 각 OS 기본 고딕으로 떨어진다. */
+  body,
+  body h1, body h2, body h3, body h4,
+  .hero h1, .hero h1 em,
+  .project-title,
+  .hero-desc,
+  .block-text,
+  .finding p,
+  .step-content {
+    font-family: Arial, "Helvetica Neue", Helvetica,
+                 "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif !important;
+  }
+
+  .hero h1 em { font-style: normal; font-weight: 700; }
+
+  /* 코드·수치·라벨만 고정폭 유지 — 표의 숫자가 자리를 맞춰야 읽힌다. */
+  code, pre, .snippet, .snippet code,
+  .data-table, .tag, .block-label, .hero-label,
+  .company-label, .project-meta, .result-label,
+  figcaption { font-family: "DM Mono", "SFMono-Regular", Consolas, monospace !important; }
+
+  /* 본문 크기 체계 */
+  body { font-size: 10pt; line-height: 1.62; }
+  .hero h1 { font-size: 21pt; line-height: 1.25; margin-bottom: 0.5rem; }
+  .hero-desc { font-size: 10pt; }
+  .project-title { font-size: 13pt; }
+  .project-subtitle { font-size: 9.5pt; }
+  .finding-title { font-size: 10.5pt; }
+  .block-text, .finding p { font-size: 10pt; }
+  .block-label, .hero-label, .company-label { font-size: 8pt; }
+  .project-meta, figcaption, .result-label { font-size: 7.5pt; }
+  .data-table { font-size: 8pt; }
+  .snippet { font-size: 8pt; }
+  .tag { font-size: 8pt; }
+  .result-value { font-size: 9.5pt; }
+
+  body { background: #fff; }
+
+  nav,
+  .sidebar,
+  #toc-sidebar { display: none !important; }
+
+  .main-layout {
+    display: block;
+    padding: 0;
+  }
+
+  .container,
+  .container-narrow {
+    padding: 10mm 12mm !important;
+    max-width: none;
+  }
+
+  .hero { padding: 10mm 12mm 0 !important; }
+
+  /* 프로젝트를 쪽마다 새로 시작하지 않는다 — 꼬리 여백이 쪽수의 대부분이었다. */
+  .divider {
+    break-before: auto;
+    margin: 1.2rem 0;
+  }
+
+  .project { break-inside: auto; }
+
+  .project-title,
+  .company-label,
+  .finding-title,
+  .block-label { break-after: avoid; }
+
+  /* 읽는 덩어리는 쪽을 넘지 않는다. 아래가 남더라도 통째로 다음 쪽으로 넘긴다. */
+  p,
+  .block-text,
+  .finding,
+  .finding p,
+  .step-item,
+  .step-content,
+  .mermaid-figure,
+  .snippet-figure,
+  .table-figure,
+  .figures,
+  .figure,
+  .result-grid,
+  .result-item,
+  .tags { break-inside: avoid; }
+
+  /* 어쩔 수 없이 쪼개지는 긴 요소도 한두 줄만 남기고 넘어가지 않게. */
+  body { orphans: 3; widows: 3; }
+
+  /* 제목만 남고 내용이 다음 쪽으로 가는 것을 막는다. */
+  .project-header,
+  .project-title,
+  .project-subtitle,
+  .company-label,
+  .finding-title,
+  .block-label { break-after: avoid; }
+
+  /* 프로젝트 첫머리(제목 + 부제 + SITUATION)는 붙어 있어야 한다. */
+  .project-header,
+  .project-subtitle { break-inside: avoid; }
+
+  /* 세로 리듬 — 읽는 단위(프로젝트 > 블록 > 문단)마다 간격 차이를 두어 구조가 보이게 한다. */
+  .project { margin-bottom: 10mm; }
+  .divider { margin: 8mm 0; }
+  .company-label { margin: 10mm 0 4mm; }
+  .project-header { margin-bottom: 1mm; }
+  .project-subtitle { margin-bottom: 4mm; }
+  .block-label { margin: 5mm 0 1.5mm; }
+  .block-text { margin-bottom: 0; }
+  .finding { margin: 4mm 0; }
+  .finding-title { margin-bottom: 1.2mm; }
+  .mermaid-figure,
+  .table-figure,
+  .snippet-figure,
+  .figures { margin: 3mm 0 1.5mm; }
+  .result-grid { margin-top: 2mm; }
+  .tags { margin-top: 4mm; }
+  figcaption { margin-top: 1.5mm; }
+
+  /* 도식(mermaid)은 인라인 SVG 라 높이를 강제하면 비율 유지 때문에 빈 칸만 남는다.
+     담는 폭을 줄이면 가로세로가 함께 줄어든다. */
+  .mermaid { max-width: 78mm; }
+  .mermaid svg { max-width: 100%; }
+  .mermaid-figure { max-width: 78mm; }
+
+  /* 화면에서는 2 단이라 작게 보이지만, 인쇄는 폭이 넓어 auto-fit 이 1 단 전폭으로 펴버린다.
+     칸 폭을 고정해 사이트에서 보이던 크기를 유지한다. */
+  .figures {
+    grid-template-columns: repeat(auto-fit, 78mm) !important;
+    justify-content: start;
+    gap: 4mm;
+  }
+
+  .figure { max-width: 78mm; }
+
+  .figure img {
+    max-height: 34mm;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .snippet {
+    max-width: 100%;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 10px;
+    line-height: 1.5;
+    padding: 0.55rem 0.7rem;
+  }
+
+  .data-table { font-size: 10px; }
+  .data-table th,
+  .data-table td { padding: 0.28rem 0.5rem; }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+/* 종이에서는 이 링크가 온라인 포트폴리오로 가는 유일한 통로다 — 눌러야 한다는 게 보여야 한다. */
+.hero-portfolio {
+  font-weight: 500;
+  border-bottom: 1px solid var(--text);
+}
+@media print {
+  .hero-portfolio {
+    color: var(--text);
+    border-bottom: 1px solid var(--text);
+  }
+}
+
+/* 최상단 온라인 포트폴리오 링크 — 사이트에서는 자기 자신이라 감추고 인쇄물에서만 보인다. */
+.top-portfolio { display: none; }
+
+@media print {
+  .top-portfolio {
+    display: flex;
+    align-items: baseline;
+    gap: 3mm;
+    margin-bottom: 6mm;
+    padding-bottom: 2mm;
+    border-bottom: 1px solid var(--border);
+    font-family: "DM Mono", monospace !important;
+    font-size: 8.5pt;
+    font-weight: 500;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .top-portfolio span {
+    font-size: 7.5pt;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+}
