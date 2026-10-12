@@ -6,7 +6,8 @@
     "headline_em": "백엔드 엔지니어입니다.",
     "description": "대용량 데이터 처리부터 백엔드 시스템 설계까지, 데이터가 흐르는 모든 구간에서 문제를 찾고 해결합니다. Spark, Airflow, Kotlin/Spring을 중심으로 분산 처리와 서비스 안정성을 함께 고려하는 엔지니어입니다.",
     "email": "jaenam2060@gmail.com",
-    "github": "https://github.com/jaenam615"
+    "github": "https://github.com/jaenam615",
+    "portfolio": "https://jaenam615.github.io/portfolio"
   },
   "experience": [
     {
@@ -27,7 +28,8 @@
     {
       "company": "크래프톤 정글",
       "role": "수료",
-      "period": "2024.01 — 2024.05"
+      "period": "2024.01 — 2024.05",
+      "hidden": true
     }
   ],
   "skills": [
@@ -129,7 +131,8 @@
         "Spring Boot",
         "포트-어댑터",
         "fail-fast"
-      ]
+      ],
+      "featured": true
     },
     {
       "id": "excel-deadlock",
@@ -285,7 +288,8 @@
           "src": "images/SionicAI/excel-deadlock/funnel-counts.png",
           "caption": "단계별 누적 — 수락 3,665 · 원본저장 3,665 · Job생성 3,662 · 착수 1,559 · 추론완료 916 · TA전송 913"
         }
-      ]
+      ],
+      "featured": true
     },
     {
       "id": "loadtest-redis",
@@ -846,7 +850,8 @@
         "마이그레이션",
         "골든 테스트",
         "비결정적 시스템 검증"
-      ]
+      ],
+      "featured": true
     },
     {
       "id": "inference-fallback",
@@ -1010,7 +1015,8 @@
         "Snowflake",
         "MapReduce",
         "AWS ECS"
-      ]
+      ],
+      "featured": true
     },
     {
       "id": "spark-lineage",
@@ -1064,7 +1070,8 @@
         "Spark",
         "AWS Glue",
         "Python"
-      ]
+      ],
+      "hidden": true
     },
     {
       "id": "llm-chat",
@@ -1146,7 +1153,8 @@
         "Resilience4j",
         "JWT",
         "Docker"
-      ]
+      ],
+      "hidden": true
     },
     {
       "id": "hr-filter",
@@ -1213,7 +1221,8 @@
         "Anthropic API",
         "S3 / MinIO",
         "Docker"
-      ]
+      ],
+      "hidden": true
     },
     {
       "id": "trace-pipeline",
@@ -1464,7 +1473,8 @@
         "Node.js",
         "Github Actions",
         "OpenAI API"
-      ]
+      ],
+      "featured": true
     },
     {
       "id": "motion-beat",
@@ -1500,7 +1510,8 @@
         "Socket.IO",
         "MongoDB",
         "AWS"
-      ]
+      ],
+      "hidden": true
     }
   ]
 }

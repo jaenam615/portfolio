@@ -168,6 +168,8 @@ function renderResults(results) {
   `;
 }
 
+const FEATURED_FINDING_LIMIT = 3;
+
 function renderProject(p, i) {
   const wrap = document.createElement('div');
   if (i > 0) wrap.innerHTML = '<hr class="divider">';
@@ -205,7 +207,8 @@ function renderProject(p, i) {
     });
     html += `</div>`;
   } else if (p.findings && p.findings.length) {
-    p.findings.forEach(f => {
+    const shown = window.__findingLimit ? p.findings.slice(0, window.__findingLimit) : p.findings;
+    shown.forEach(f => {
       html += `
         <div class="finding">
           <p class="finding-title">${f.title}</p>
@@ -269,18 +272,28 @@ function render(data) {
 
   // Hero
   document.getElementById('hero').innerHTML = `
+    ${meta.portfolio ? `<a class="top-portfolio" href="${meta.portfolio}" target="_blank">
+      <span>온라인 포트폴리오</span>${meta.portfolio.replace('https://', '')}
+    </a>` : ''}
     <p class="hero-label">${meta.role}</p>
     <h1>${meta.headline}<br><em>${meta.headline_em}</em></h1>
     <p class="hero-desc">${meta.description}</p>
     <div class="hero-links">
       <a href="mailto:${meta.email}">${meta.email}</a>
       <a href="${meta.github}" target="_blank">${meta.github.replace('https://', '')}</a>
+      ${meta.portfolio ? `<a class="hero-portfolio" href="${meta.portfolio}" target="_blank">${meta.portfolio.replace('https://', '')}</a>` : ''}
     </div>
   `;
 
   // Projects — hidden 은 기본 제외. ?archive=1 이면 함께 보여준다(숨김 표시와 함께).
-  const showArchive = new URLSearchParams(location.search).has('archive');
-  const visible = projects.filter(p => showArchive || !p.hidden);
+  // ?featured 는 대표 프로젝트만 추린다 — 전체는 사이트에 있으므로 PDF 는 굵직한 것만 담는다.
+  const params = new URLSearchParams(location.search);
+  const showArchive = params.has('archive');
+  const featuredOnly = params.has('featured');
+  const visible = projects.filter(p =>
+    showArchive || (!p.hidden && (!featuredOnly || p.featured)));
+  // PDF 는 요약본이다 — 전체 findings 는 사이트에 있으므로 앞쪽 핵심만 싣는다.
+  window.__findingLimit = featuredOnly ? FEATURED_FINDING_LIMIT : null;
 
   // 회사별로 묶는다. 순서는 projects 배열에 처음 등장한 순서를 따른다.
   const groups = [];
@@ -319,7 +332,7 @@ function render(data) {
   // Sidebar — Experience
   const expEl = document.getElementById('experience-sidebar');
   expEl.innerHTML = `<div class="sidebar-exp"><p class="sidebar-label">Experience</p>` +
-    experience.map(e => `
+    experience.filter(e => showArchive || !e.hidden).map(e => `
       <div class="exp-item">
         <p class="exp-company">${e.company}</p>
         <p class="exp-role">${e.role}</p>
