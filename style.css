@@ -365,11 +365,26 @@ nav .inner {
   color: var(--text);
   margin-bottom: 0.3rem;
 }
-.finding p {
+.finding p,
+.finding li {
   font-size: 13px;
   color: var(--muted);
   line-height: 1.8;
 }
+
+/* 본문 안의 문단·목록 */
+.block-text > * + *,
+.step-content > * + *,
+.finding-body > * + * { margin-top: 0.45rem; }
+.block-text ul,
+.step-content ul,
+.finding-body ul { padding-left: 1.1rem; }
+.block-text li + li,
+.step-content li + li,
+.finding-body li + li { margin-top: 0.15rem; }
+.block-text strong,
+.step-content strong,
+.finding-body strong { font-weight: 500; color: var(--text); }
 
 /* Data tables */
 .table-figure {
@@ -642,6 +657,7 @@ footer p {
   .hero-desc,
   .block-text,
   .finding p,
+  .finding li,
   .step-content {
     font-family: Arial, "Helvetica Neue", Helvetica,
                  "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif !important;
@@ -662,7 +678,7 @@ footer p {
   .project-title { font-size: 13pt; }
   .project-subtitle { font-size: 9.5pt; }
   .finding-title { font-size: 10.5pt; }
-  .block-text, .finding p { font-size: 10pt; }
+  .block-text, .finding p, .finding li { font-size: 10pt; }
   .block-label, .hero-label, .company-label { font-size: 8pt; }
   .project-meta, figcaption, .result-label { font-size: 7.5pt; }
   .data-table { font-size: 8pt; }
