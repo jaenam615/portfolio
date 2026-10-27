@@ -98,6 +98,28 @@ function hl(text, codes) {
   return out;
 }
 
+// 줄바꿈은 문단, '- '로 시작하는 줄은 목록, **굵게**, `코드`. 한 줄짜리 기존 문장은 그대로 <p> 하나가 된다.
+function rich(text, codes) {
+  const blocks = [];
+  let list = null;
+  text.split('\n').forEach(line => {
+    if (line.startsWith('- ')) {
+      if (!list) { list = []; blocks.push(list); }
+      list.push(line.slice(2));
+    } else {
+      list = null;
+      if (line.trim()) blocks.push(line);
+    }
+  });
+  const fmt = t => hl(t, codes)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  return blocks.map(b => Array.isArray(b)
+    ? `<ul>${b.map(li => `<li>${fmt(li)}</li>`).join('')}</ul>`
+    : `<p>${fmt(b)}</p>`
+  ).join('');
+}
+
 function renderMermaid(blocks) {
   if (!blocks || !blocks.length) return '';
   return blocks.map(b => `
@@ -182,7 +204,7 @@ function renderProject(p, i) {
       </div>
       <p class="project-subtitle">${p.subtitle}</p>
       <p class="block-label">Situation</p>
-      <p class="block-text">${p.situation}</p>
+      <div class="block-text">${rich(p.situation)}</div>
       ${renderImages(p.situation_images)}
       <p class="block-label">Analysis & Action</p>
   `;
@@ -195,7 +217,7 @@ function renderProject(p, i) {
           <div><span class="step-badge">${s.step}</span></div>
           <div>
             <p class="step-title">${s.title}</p>
-            <p class="step-content">${hl(s.content, s.codes)}</p>
+            <div class="step-content">${rich(s.content, s.codes)}</div>
             ${renderSnippets(s.snippets)}
             ${renderMermaid(s.mermaid)}
             ${renderTables(s.tables)}
@@ -212,7 +234,7 @@ function renderProject(p, i) {
       html += `
         <div class="finding">
           <p class="finding-title">${f.title}</p>
-          <p>${hl(f.content, f.codes)}</p>
+          <div class="finding-body">${rich(f.content, f.codes)}</div>
           ${renderSnippets(f.snippets)}
           ${renderMermaid(f.mermaid)}
           ${renderTables(f.tables)}
