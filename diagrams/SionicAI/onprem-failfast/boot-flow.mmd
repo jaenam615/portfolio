@@ -1,7 +1,13 @@
 flowchart TD
-    A[부팅 시작] --> B{고객사 인증 설정<br/>존재하는가}
-    B -- 없음 --> F1[부팅 실패<br/>설치 현장에서 즉시 발견]
-    B -- 있음 --> C{필수 env 전부<br/>주입됐는가}
-    C -- 누락 --> F2[부팅 실패<br/>어떤 키가 비었는지 명시]
-    C -- 충족 --> D[인증 게이트웨이 등록]
-    D --> E[정상 기동]
+    A["부팅 시작 (onprem 프로필)"] --> B{"app.onprem.site<br/>OnpremSite enum 바인딩"}
+    B -- "오타·미지원 값" --> F1["부팅 실패<br/>설치 현장에서 즉시 발견"]
+    B -- "설정 없음" --> F0["부팅 실패<br/>onprem 설정 필수"]
+    B -- "성공" --> C{"when(site)<br/>else 없음"}
+    C -- "SAMSUNG_ENA" --> D{"requireComplete()<br/>필수 env 전부 있는가"}
+    C -- "SIONIC" --> S["API key 검증 후<br/>인증 등록"]
+    C -- "DEFAULT" --> N["인증 없음<br/>(명시적 선택)"]
+    D -- "누락" --> F2["부팅 실패<br/>비어 있는 env 이름 명시"]
+    D -- "충족" --> G["DTSP 토큰 인증 등록"]
+    G --> E["정상 기동"]
+    S --> E
+    N --> E
